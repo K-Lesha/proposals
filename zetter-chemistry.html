@@ -172,20 +172,21 @@
       margin: 0 auto 16px;
     }
     .cta-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      background-color: #FFF6CC;
-      color: #111;
-      font-size: 18px;
-      font-weight: 600;
-      padding: 16px 24px;
-      border-radius: 12px;
-      text-decoration: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: all 0.2s;
-      margin-bottom: 24px;
-    }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center; /* добавляем */
+  gap: 12px;
+  background-color: #FFF6CC;
+  color: #111;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 16px 24px;
+  border-radius: 12px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+  margin: 0 auto 24px; /* меняем margin-bottom на margin и автоцентрируем */
+}
     .cta-button:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(0,0,0,0.15);
@@ -444,7 +445,7 @@
     </div>
 
     <!-- Блок 5: Завершение -->
-    <div style="text-align: center;">
+<div style="display: flex; flex-direction: column; align-items: center;">
       <a href="https://docs.google.com/spreadsheets/d/1BdD-ITC2SQCN8wPme_YrxRQaRrdPQtlrHZQrWB12YbU/edit?usp=sharing" class="cta-button" target="_blank">
         <img src="https://cdn-icons-png.flaticon.com/512/10007/10007105.png" alt="Таблица" width="24" height="24" />
         Открыть просчеты в Google Spreadsheets
