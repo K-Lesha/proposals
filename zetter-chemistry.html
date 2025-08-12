@@ -258,6 +258,15 @@
   object-fit: contain;
   display: block;
 }
+
+    .final-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto 40px; /* центрируем блок */
+  max-width: 600px;    /* ограничиваем ширину */
+  text-align: center;  /* чтобы контакты тоже были по центру */
+}
   </style>
 </head>
 <body>
@@ -456,15 +465,21 @@
     </div>
 
     <!-- Блок 5: Завершение -->
-<div style="display: flex; flex-direction: column; align-items: center;">
-      <a href="https://docs.google.com/spreadsheets/d/1BdD-ITC2SQCN8wPme_YrxRQaRrdPQtlrHZQrWB12YbU/edit?usp=sharing" class="cta-button" target="_blank">
-        <img src="https://cdn-icons-png.flaticon.com/512/10007/10007105.png" alt="Таблица" width="24" height="24" />
-        Открыть просчеты в Google Spreadsheets
-      </a>
-      <div class="contacts">
-        <p>Контакты: <a href="mailto:kvlnk247@gmail.com" class="contact-link">kvlnk247@gmail.com</a>, <a href="tel:+79296144934" class="contact-link">+79296144934</a>, <a href="https://t.me/alexeykovalenko" class="contact-link" target="_blank">Telegram</a></p>
-      </div>
-    </div>
+<div class="final-cta">
+  <a href="https://docs.google.com/spreadsheets/d/1BdD-ITC2SQCN8wPme_YrxRQaRrdPQtlrHZQrWB12YbU/edit?usp=sharing" 
+     class="cta-button" target="_blank">
+    <img src="https://cdn-icons-png.flaticon.com/512/10007/10007105.png" 
+         alt="Таблица" width="24" height="24" />
+    Открыть просчеты в Google Spreadsheets
+  </a>
+  <div class="contacts">
+    <p>Контакты: <a href="mailto:kvlnk247@gmail.com" class="contact-link">kvlnk247@gmail.com</a>, 
+       <a href="tel:+79296144934" class="contact-link">+79296144934</a>, 
+       <a href="https://t.me/alexeykovalenko" class="contact-link" target="_blank">Telegram</a></p>
+  </div>
+</div>
+
+      
   </div>
 </body>
 </html>
