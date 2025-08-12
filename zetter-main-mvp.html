@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP-сценарий Telegram-бота — описание и структура</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Base (из твоего шаблона) */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background-color: #FFFFFF; color: #333; line-height: 1.6; }
+    img { max-width: 100%; height: auto; display: block; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+    header { display: flex; flex-direction: column; align-items: center; padding: 60px 20px; text-align: center; background-color: #F5F5F5; border-radius: 16px; margin-bottom: 40px; gap: 24px; }
+    @media (min-width: 768px) { header { flex-direction: row; justify-content: space-between; text-align: left; } }
+    .header-content { flex: 1; }
+    .header-image { flex: 1; max-width: 360px; margin-top: 20px; }
+    @media (min-width: 768px) { .header-image { margin-top: 0; } }
+    .header-image img { width: 100%; border-radius: 16px; }
+
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 16px; color: #111; }
+    h2 { font-size: 18px; font-weight: 400; color: #555; margin-bottom: 20px; }
+
+    .logo { height: 40px; margin-bottom: 16px; }
+
+    .section { margin: 40px 0; }
+    .section-title { font-size: 24px; font-weight: 700; margin: 0 0 24px; color: #111; text-align: center; }
+    @media (min-width: 768px) { .section-title { text-align: left; } }
+
+    .cards-grid { display: grid; grid-template-columns: 1fr; gap: 24px; margin-bottom: 40px; }
+    @media (min-width: 768px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .card { background-color: #F5F5F5; border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.2s; }
+    .card:hover { transform: translateY(-4px); }
+    .card-title { font-size: 20px; font-weight: 700; margin-bottom: 12px; color: #111; }
+    .card-text { font-size: 16px; color: #444; }
+
+    .bot-cards { display: grid; grid-template-columns: 1fr; gap: 24px; }
+    @media (min-width: 768px) { .bot-cards { grid-template-columns: repeat(2, 1fr); } }
+    .bot-card { background-color: #F5F5F5; border-radius: 16px; padding: 24px; }
+    .bot-card h3 { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 8px; }
+    .bot-card p, .bot-card ul { font-size: 16px; color: #444; }
+    .bot-card ul { padding-left: 18px; margin-top: 8px; }
+
+    .final-block { background-color: #D4E9E4; border-radius: 16px; padding: 32px; text-align: center; margin: 40px 0; }
+    .final-icon { width: 64px; height: 64px; margin: 0 auto 16px; }
+
+    .cta-button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; background-color: #FFF6CC; color: #111; font-size: 18px; font-weight: 600; padding: 16px 24px; border-radius: 12px; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.2s; margin: 0 auto 24px; }
+    .cta-button:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+
+    .contacts { font-size: 16px; color: #555; text-align: center; line-height: 1.8; }
+    .contact-link { color: #111; text-decoration: underline; }
+
+    .accent-yellow { background-color: #FFF6CC; }
+    .accent-mint { background-color: #D4E9E4; }
+
+    /* Marketplaces блок (из твоего шаблона) */
+    .marketplaces { background-color: #F5F5F5; border-radius: 16px; padding: 28px; margin: 40px 0; }
+    .marketplaces .marketplaces-title { font-size: 24px; font-weight: 700; color: #111; margin-bottom: 16px; text-align: center; }
+    .marketplaces .marketplaces-sub { font-size: 16px; color: #444; margin-bottom: 20px; text-align: center; }
+    .logo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    @media (min-width: 768px) { .logo-grid { grid-template-columns: repeat(5, 1fr); } }
+    .logo-item { background: #FFFFFF; border-radius: 14px; padding: 14px; display: flex; align-items: center; justify-content: center; height: 82px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .logo-item img { max-height: 52px; max-width: 100%; object-fit: contain; display: block; }
+    .logo-item span { font-size: 14px; color: #333; opacity: 0.8; }
+
+    /* Мелкие улучшения для списков */
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+    .note { font-size: 14px; color: #666; }
+    .link { color: #111; text-decoration: underline; }
+
+    /* Разделительная линия в стиле твоих "⸻" */
+    .sep { border: 0; height: 1px; background: linear-gradient(90deg, transparent, #e5e5e5, transparent); margin: 32px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <h1>MVP-сценарий Telegram-бота</h1>
+        <h2>Запускаем быстрый, бюджетный и проверяем гипотезы без тяжёлых интеграций.</h2>
+        <p class="note">
+          Исходная версия: <a class="link" href="https://miro.com/app/board/uXjVJVNQqE8=/" target="_blank" rel="noopener">посмотреть Miro-схему</a>.
+        </p>
+      </div>
+      <div class="header-image" aria-hidden="true">
+        <!-- Декоративная картинка (можешь заменить на свою) -->
+        <img src="https://images.unsplash.com/photo-1611162616475-46b635cb6868?q=80&w=1200&auto=format&fit=crop" alt="Иллюстрация к MVP-сценарию" />
+      </div>
+    </header>
+
+    <section class="section">
+      <h2 class="section-title">Почему начинаем с MVP</h2>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-title">Быстрый запуск</div>
+          <p class="card-text">Без сложных интеграций на старте — выходим в прод быстрее.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Снижение бюджета</div>
+          <p class="card-text">Убираем функции, которые «съедают» большую часть времени разработки.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Проверка гипотезы</div>
+          <p class="card-text">Смотрим, проходят ли пользователи по воронке и насколько сценарий откликается на аудиторию.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Готово к масштабированию</div>
+          <p class="card-text">Это не «обрезанный» функционал — рабочий костяк, который легко дорастить.</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="sep" />
+
+    <section class="section" id="mvp-core">
+      <h2 class="section-title">Что входит в MVP (ядро)</h2>
+      <div class="bot-cards">
+        <article class="bot-card">
+          <h3>1. Регистрация в боте</h3>
+          <p>Сбор имени и телефона (email — опционально). Минимальный профиль для привязки будущих покупок.</p>
+        </article>
+        <article class="bot-card">
+          <h3>2. Выдача промокода</h3>
+          <p>Заранее загруженный список кодов или один общий тестовый код. Экономим время на генерации и проверке в реальном времени.</p>
+        </article>
+        <article class="bot-card">
+          <h3>3. Две кнопки-цели</h3>
+          <ul>
+            <li>«Перейти в магазин»</li>
+            <li>«На маркетплейсы» (опционально через промежуточную страницу с UTM-метками)</li>
+          </ul>
+          <p class="note">Позволяет при желании «докрутить» аналитику или приём событий с МП в будущем.</p>
+        </article>
+        <article class="bot-card">
+          <h3>4. Трекинг без тяжёлых интеграций</h3>
+          <p>Все ссылки проходят через редирект с логированием кликов в AppMetrica. Получаем статистику уже на старте — без подключения MindBox или API магазинов.</p>
+        </article>
+        <article class="bot-card">
+          <h3>5. Простая фиксация конверсии</h3>
+          <p>Кнопка «Я купил(а)» → запрос номера заказа (или «Пропустить»). Лёгкая проверка без автоматической валидации, но даёт первичные данные.</p>
+        </article>
+        <article class="bot-card">
+          <h3>6. Один ремайндер через 48 часов</h3>
+          <p>Если нет клика или покупки — одно напоминание. Минимум сложности, максимум пользы.</p>
+        </article>
+        <article class="bot-card">
+          <h3>7. Опциональный розыгрыш</h3>
+          <p>Кнопка «Участвовать в розыгрыше» после «Я купил(а)» — без проверки чека на старте. Проверку можно подключить позже.</p>
+        </article>
+        <article class="bot-card">
+          <h3>8. Реактивация пользователей</h3>
+          <p>Рассылка тем, кто давно не взаимодействовал. Дешёвый и эффективный способ вернуть клиентов.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Почему это быстрее и дешевле</h2>
+      <div class="cards-grid">
+        <div class="card"><div class="card-title">Без интеграций на старте</div><p class="card-text">Убираем самый затратный блок.</p></div>
+        <div class="card"><div class="card-title">Простая логика ожиданий</div><p class="card-text">Один ремайндер вместо ветвящейся цепочки.</p></div>
+        <div class="card"><div class="card-title">Лёгкая работа с промокодами</div><p class="card-text">Без пулов и сложных проверок.</p></div>
+        <div class="card"><div class="card-title">Минимум данных для старта</div><p class="card-text">Только имя и телефон.</p></div>
+      </div>
+    </section>
+
+    <section class="marketplaces">
+      <div class="marketplaces-title">Маркетплейсы (опциональная ветка)</div>
+      <p class="marketplaces-sub">Промежуточная страница с UTM-метками и потенциальным приёмом событий от МП в будущем.</p>
+      <div class="logo-grid">
+        <div class="logo-item"><span>Ozon</span></div>
+        <div class="logo-item"><span>Wildberries</span></div>
+        <div class="logo-item"><span>Яндекс.Маркет</span></div>
+        <div class="logo-item"><span>AliExpress</span></div>
+        <div class="logo-item"><span>Kaspi</span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Места, где нужна аккуратность</h2>
+      <ul>
+        <li>Настройка редиректов и логирования в AppMetrica (чтобы данные не терялись).</li>
+        <li>Сегментация для реактивации (корректный подсчёт «давно не взаимодействовал»).</li>
+        <li>Подготовка UTM-меток и промежуточной страницы (если использовать для МП).</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Итог</h2>
+      <p>Такой MVP можно собрать за короткий срок и с вменяемым бюджетом. Если тест подтвердит конверсию, можно безболезненно добавить:</p>
+      <ul>
+        <li>Автоматическую проверку покупок</li>
+        <li>Валидацию чеков</li>
+        <li>Интеграции с MindBox и маркетплейсами</li>
+        <li>Сложные сценарии с несколькими напоминаниями</li>
+      </ul>
+    </section>
+
+    <div class="final-block">
+      <img class="final-icon" src="https://cdn-icons-png.flaticon.com/512/10007/10007105.png" alt="Таблица" />
+      <p style="margin-bottom:16px;font-size:18px;font-weight:600;">Просчёты и расчёты</p>
+      <a href="https://docs.google.com/spreadsheets/d/1BdD-ITC2SQCN8wPme_YrxRQaRrdPQtlrHZQrWB12YbU/edit?usp=sharing" class="cta-button" target="_blank" rel="noopener">
+        Открыть Google Spreadsheets
+      </a>
+      <div class="contacts">
+        <p>Контакты: <a href="mailto:kvlnk247@gmail.com" class="contact-link">kvlnk247@gmail.com</a>, <a href="tel:+79296144934" class="contact-link">+7 929 614-49-34</a>, <a href="https://t.me/alexeykovalenko" class="contact-link" target="_blank" rel="noopener">Telegram</a></p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
