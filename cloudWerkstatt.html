@@ -6,49 +6,90 @@
   <title>Мероприятия — Регистрация</title>
   <style>
     :root {
-      --bg:#fff; --text:#222; --muted:#666; --brand:#0a7cff;
-      --card:#f6f7f9; --border:#e6e8eb; --error:#e53935; --ok:#0a7c3a;
-      --overlay: rgba(0,0,0,.5);
-      --radius:14px;
+      --bg:#fff; --text:#111; --muted:#667085; --brand:#0a7cff;
+      --brand-2:#7c3aed; --card:#f6f7f9; --border:#e6e8eb; --error:#e53935; --ok:#0a7c3a;
+      --overlay: rgba(0,0,0,.55);
+      --radius:16px;
+      --shadow: 0 10px 30px rgba(2,8,20,.08);
     }
     * { box-sizing: border-box; }
+    html, body { height: 100%; }
     body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif; background:var(--bg); color:var(--text); }
     .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
-    header { display:flex; justify-content:space-between; align-items:center; padding:16px 0 8px; }
+
+    /* ======= HERO ======= */
+    .hero { position: relative; min-height: 56vh; display:grid; place-items:end start; overflow:hidden; border-bottom:1px solid var(--border); }
+    .hero::before { /* background image */
+      content:""; position:absolute; inset:0;
+      background-image: url('https://media.licdn.com/dms/image/v2/D4D12AQFxuo8CWk6qIg/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1681980612057?e=2147483647&v=beta&t=f9M7hoyYpXFYlLmwfvzCWg4qyzF6ixX36j3jIOnCfa0');
+      background-size: cover; background-position: center; transform: scale(1.05);
+      filter: saturate(1.05) contrast(1.02) brightness(.9);
+    }
+    .hero::after { /* gradient + vignette */
+      content:""; position:absolute; inset:0;
+      background: radial-gradient(100% 60% at 50% 0%, rgba(0,0,0,.25) 0%, rgba(0,0,0,.7) 100%),
+                  linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.65) 75%);
+    }
+    .hero-inner { position:relative; width:100%; z-index:2; padding: 64px 24px 48px; }
+    .hero-content { max-width: 1100px; margin: 0 auto; color: #fff; }
+
+    .kicker { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; background: rgba(255,255,255,.1); backdrop-filter: blur(6px); border:1px solid rgba(255,255,255,.22); font-size:12px; letter-spacing:.4px; text-transform:uppercase; }
+
+    .title { font-size: clamp(28px, 5vw, 52px); line-height: 1.05; margin: 14px 0 10px; font-weight: 800; letter-spacing: -.02em; }
+    .subtitle { font-size: clamp(15px, 2.3vw, 18px); color: rgba(255,255,255,.86); max-width: 720px; }
+
+    .cta-row { margin-top: 22px; display:flex; gap:12px; align-items:center; flex-wrap: wrap; }
+    .btn-cta { padding:12px 16px; border-radius: 12px; border:1px solid rgba(255,255,255,.25); background:linear-gradient(90deg, var(--brand), var(--brand-2)); color:#fff; font-weight:700; cursor:pointer; box-shadow:0 8px 24px rgba(10,124,255,.35); transition: transform .15s ease, box-shadow .15s ease; }
+    .btn-cta:hover { transform: translateY(-1px); box-shadow:0 12px 32px rgba(10,124,255,.45); }
+    .btn-ghost { padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08); color:#fff; font-weight:600; cursor:pointer; backdrop-filter: blur(6px); }
+
+    /* ======= HEADER ======= */
+    header { display:flex; justify-content:space-between; align-items:center; padding:16px 0 12px; }
     header h1 { font-size:20px; margin:0; }
     header small { color:var(--muted); }
+
+    /* ======= FILTERS ======= */
+    .toolbar { display:flex; gap:8px; align-items:center; justify-content:space-between; margin: 8px 0 16px; flex-wrap:wrap; }
+    .filters { display:flex; gap:8px; align-items:center; }
+    .chip { padding:8px 12px; border-radius:999px; border:1px solid var(--border); background:#fff; color:#111; cursor:pointer; font-size:14px; transition: all .15s ease; }
+    .chip:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .chip.active { background: #eef4ff; border-color:#d1e0ff; color:#0b3bcc; }
+
+    /* ======= GRID & CARDS ======= */
     .grid { display:grid; gap:16px; grid-template-columns: repeat(1, minmax(0, 1fr)); }
     @media (min-width: 680px) { .grid { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 980px) { .grid { grid-template-columns: repeat(3, 1fr); } }
 
-    .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
-            padding:16px; display:flex; flex-direction:column; gap:8px; transition: transform .15s ease, box-shadow .15s ease; }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.06); cursor:pointer; }
-    .card-title { font-weight:600; }
+    .card { background:linear-gradient(#fff, #fff) padding-box, linear-gradient(180deg, #f0f3f7, #e6ebf2) border-box; border:1px solid transparent; border-radius:var(--radius);
+            padding:16px; display:flex; flex-direction:column; gap:10px; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; opacity:0; transform: translateY(10px); }
+    .card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color:#dfe6ef; cursor:pointer; }
+    .card.reveal { opacity:1; transform: none; }
+    .badge { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#3550a6; background:#eef4ff; border:1px solid #d1e0ff; border-radius:999px; padding:4px 8px; width:max-content; }
+    .card-title { font-weight:700; letter-spacing:-.01em; }
     .card-meta { color:var(--muted); font-size:14px; }
+    .desc { color:#394150; }
 
-    /* Overlay */
+    /* ======= OVERLAY (dialog) ======= */
     .overlay { position:fixed; inset:0; background:var(--overlay); display:none; align-items:center; justify-content:center; padding:16px; }
     .overlay.open { display:flex; }
-    .dialog { width: min(980px, 100%); background:#fff; border-radius: var(--radius); overflow:hidden; display:grid; grid-template-columns: 1fr; }
+    .dialog { width: min(980px, 100%); background:#fff; border-radius: var(--radius); overflow:hidden; display:grid; grid-template-columns: 1fr; box-shadow: 0 18px 50px rgba(2,8,20,.2); }
     @media (min-width: 860px) { .dialog { grid-template-columns: 1fr 1fr; } }
     .left { padding:24px; border-right:1px solid var(--border); }
     .right { padding:24px; }
     .dialog h2 { margin:0 0 8px; }
-    .desc { color:var(--muted); }
     .close { position:absolute; right:16px; top:16px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:6px 10px; cursor:pointer; }
     .row { display:flex; gap:12px; }
     .row > div { flex:1; }
 
     label { display:block; font-size:13px; color:#444; margin:12px 0 6px; }
-    input { width:100%; padding:12px 12px; border:1px solid var(--border); border-radius:10px; font-size:16px; outline:none; }
+    input { width:100%; padding:12px 12px; border:1px solid var(--border); border-radius:10px; font-size:16px; outline:none; background:#fff; }
     input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(10,124,255,.15); }
     .invalid input { border-color: var(--error); box-shadow: 0 0 0 3px rgba(229,57,53,.12); }
     .error { color:var(--error); font-size:12px; margin-top:4px; min-height: 14px; }
     .hint { color:var(--muted); font-size:12px; margin-top:6px; }
 
     .btn { margin-top:14px; width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--brand);
-           background:var(--brand); color:#fff; font-weight:600; font-size:16px; cursor:pointer; }
+           background:var(--brand); color:#fff; font-weight:700; font-size:16px; cursor:pointer; }
     .btn[disabled] { opacity:.6; cursor:default; }
 
     .status { margin-top:10px; font-size:14px; }
@@ -59,6 +100,21 @@
   </style>
 </head>
 <body>
+  <!-- HERO with overlay copy -->
+  <section class="hero" aria-label="Hero">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <span class="kicker">Живые встречи и онлайн</span>
+        <h1 class="title">Учись. Общайся. Расти.</h1>
+        <p class="subtitle">Подборка воркшопов и митапов — регистрируйся за минуту и приходи за практикой.</p>
+        <div class="cta-row">
+          <button class="btn-cta" id="scrollToEvents">Смотреть события</button>
+          <button class="btn-ghost" id="openNext">Ближайшее мероприятие</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="container">
     <header>
       <div>
@@ -67,266 +123,18 @@
       </div>
     </header>
 
-    <section id="events" class="grid"></section>
+    <!-- Filters -->
+    <div class="toolbar">
+      <div class="filters" role="tablist" aria-label="Фильтр формата">
+        <button class="chip active" data-filter="all" role="tab" aria-selected="true">Все</button>
+        <button class="chip" data-filter="online" role="tab" aria-selected="false">Онлайн</button>
+        <button class="chip" data-filter="offline" role="tab" aria-selected="false">Офлайн</button>
+      </div>
+    </div>
+
+    <section id="events" class="grid" aria-live="polite"></section>
   </div>
 
   <!-- Overlay -->
   <div id="overlay" class="overlay" aria-hidden="true">
-    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
-      <button id="closeBtn" class="close" type="button" aria-label="Закрыть">✕</button>
-      <div class="left">
-        <h2 id="dlgTitle"></h2>
-        <div id="dlgMeta" class="card-meta"></div>
-        <p id="dlgDesc" class="desc" style="margin-top:12px;"></p>
-      </div>
-      <div class="right">
-        <form id="regForm" novalidate>
-          <div class="row">
-            <div>
-              <label for="firstName">Имя</label>
-              <input id="firstName" name="firstName" autocomplete="given-name" required />
-              <div class="error" data-err-for="firstName"></div>
-            </div>
-            <div>
-              <label for="lastName">Фамилия</label>
-              <input id="lastName" name="lastName" autocomplete="family-name" required />
-              <div class="error" data-err-for="lastName"></div>
-            </div>
-          </div>
-
-          <label for="phone">Телефон</label>
-          <input id="phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="+43 660 1234567" required />
-          <div class="error" data-err-for="phone"></div>
-
-          <label for="email">Email</label>
-          <input id="email" name="email" type="email" autocomplete="email" required />
-          <div class="error" data-err-for="email"></div>
-
-          <button class="btn" id="submitBtn" type="submit">Отправить</button>
-          <div id="formStatus" class="status hidden"></div>
-          <div class="hint">Нажимая «Отправить», вы соглашаетесь с обработкой данных.</div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // ---------- Mock events ----------
-    const EVENTS = [
-      { id:"evt_001", title:"Intro to UX Writing",
-        dateISO:"2025-09-12T18:00:00+02:00", place:"Vienna, Maria-Theresien-Straße 5",
-        desc:"Базовый воркшоп по UX‑копирайтингу. Практика формулировок, микро‑копирайтинг.",
-      },
-      { id:"evt_002", title:"SwiftUI MVVM Day",
-        dateISO:"2025-09-20T10:00:00+02:00", place:"Online",
-        desc:"Архитектура MVVM на практике. Модули, ViewModel, навигация, стейт.",
-      },
-      { id:"evt_003", title:"n8n + Supabase Automation",
-        dateISO:"2025-10-03T14:00:00+02:00", place:"Wien, Impact Hub",
-        desc:"Интеграции и вебхуки без боли. Лайфхаки продакшена.",
-      }
-    ];
-
-    const WEBHOOK_URL = "https://betters-technology.site/webhook/a62b454b-ab36-443a-bccd-8d736b4b8a7a";
-
-    // ---------- DOM refs ----------
-    const grid = document.getElementById('events');
-    const overlay = document.getElementById('overlay');
-    const closeBtn = document.getElementById('closeBtn');
-    const dlgTitle = document.getElementById('dlgTitle');
-    const dlgMeta  = document.getElementById('dlgMeta');
-    const dlgDesc  = document.getElementById('dlgDesc');
-    const form = document.getElementById('regForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const formStatus = document.getElementById('formStatus');
-
-    let selectedEvent = null;
-    let lastFocus = null;
-
-    // ---------- Utils ----------
-    const fmtDate = (iso) => {
-      try {
-        const d = new Date(iso);
-        return new Intl.DateTimeFormat('ru-RU', { dateStyle:'medium', timeStyle:'short' }).format(d);
-      } catch { return iso; }
-    };
-    const onlyDigits = (s) => (s || '').replace(/\D/g,'');
-    const toE164 = (raw) => {
-      const digits = onlyDigits(raw);
-      if (!digits) return null;
-      if (raw.trim().startsWith('+')) return '+' + digits;
-      // Без кода страны оставляем с плюсом (можно добавить дефолт региона)
-      return '+' + digits;
-    };
-
-    const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿА-Яа-яЁё' -]{2,50}$/;
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-    function setError(field, message) {
-      const wrap = field.parentElement.classList.contains('row') ? field.parentElement : field.parentElement;
-      field.parentElement.classList.add('invalid');
-      const el = document.querySelector(`.error[data-err-for="${field.id}"]`);
-      if (el) el.textContent = message || '';
-      field.setAttribute('aria-invalid', 'true');
-    }
-    function clearError(field) {
-      field.parentElement.classList.remove('invalid');
-      const el = document.querySelector(`.error[data-err-for="${field.id}"]`);
-      if (el) el.textContent = '';
-      field.removeAttribute('aria-invalid');
-    }
-
-    function validateField(field) {
-      const v = field.value.trim();
-      if (field.id === 'firstName' || field.id === 'lastName') {
-        if (!v) { setError(field, 'Обязательное поле'); return false; }
-        if (!nameRe.test(v)) { setError(field, 'Только буквы, 2–50 символов'); return false; }
-      }
-      if (field.id === 'email') {
-        if (!v) { setError(field, 'Укажите email'); return false; }
-        if (!emailRe.test(v)) { setError(field, 'Неверный формат email'); return false; }
-      }
-      if (field.id === 'phone') {
-        const digits = onlyDigits(v);
-        if (!digits) { setError(field, 'Укажите телефон'); return false; }
-        if (digits.length < 10 || digits.length > 15) { setError(field, 'Телефон: 10–15 цифр'); return false; }
-      }
-      clearError(field);
-      return true;
-    }
-
-    function validateForm() {
-      const fields = ['firstName','lastName','phone','email'].map(id => document.getElementById(id));
-      let ok = true;
-      fields.forEach(f => { if (!validateField(f)) ok = false; });
-      return ok;
-    }
-
-    function openOverlay(ev) {
-      selectedEvent = ev;
-      dlgTitle.textContent = ev.title;
-      dlgMeta.textContent = `${fmtDate(ev.dateISO)} · ${ev.place}`;
-      dlgDesc.textContent = ev.desc;
-
-      form.reset();
-      document.querySelectorAll('.error').forEach(e => e.textContent = '');
-      document.querySelectorAll('#regForm .invalid').forEach(e => e.classList.remove('invalid'));
-      formStatus.className = 'status hidden';
-      formStatus.textContent = '';
-
-      lastFocus = document.activeElement;
-      overlay.classList.add('open');
-      overlay.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-      setTimeout(() => document.getElementById('firstName').focus(), 30);
-    }
-
-    function closeOverlay() {
-      overlay.classList.remove('open');
-      overlay.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-      if (lastFocus) lastFocus.focus();
-    }
-
-    // ---------- Render cards ----------
-    function renderGrid() {
-      grid.innerHTML = '';
-      EVENTS.forEach(ev => {
-        const card = document.createElement('article');
-        card.className = 'card';
-        card.tabIndex = 0;
-        card.innerHTML = `
-          <div class="card-title">${ev.title}</div>
-          <div class="card-meta">${fmtDate(ev.dateISO)} · ${ev.place}</div>
-          <div class="desc">${ev.desc}</div>
-        `;
-        card.addEventListener('click', () => openOverlay(ev));
-        card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openOverlay(ev); }});
-        grid.appendChild(card);
-      });
-    }
-
-    // ---------- Submit ----------
-    async function sendPayload(payload) {
-      // Пытаемся обычный fetch с CORS
-      try {
-        const res = await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          mode: 'cors',
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return true;
-      } catch (err) {
-        // Фоллбек: «немой» POST (запрос уходит, ответ не читаем)
-        try {
-          navigator.sendBeacon && navigator.sendBeacon(WEBHOOK_URL, new Blob([JSON.stringify(payload)], { type:'application/json' }));
-        } catch {}
-        // Параллельно пробуем no-cors (не упадёт из-за CORS)
-        try {
-          await fetch(WEBHOOK_URL, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain'}, mode:'no-cors', keepalive:true });
-        } catch {}
-        // Считаем отправленным, но предупреждать юзера не будем — сервер принял/не принял неизвестно
-        return true;
-      }
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fFirst = document.getElementById('firstName');
-      const fLast  = document.getElementById('lastName');
-      const fPhone = document.getElementById('phone');
-      const fEmail = document.getElementById('email');
-
-      [fFirst,fLast,fPhone,fEmail].forEach(clearError);
-      if (!validateForm()) return;
-
-      submitBtn.disabled = true;
-      formStatus.className = 'status';
-      formStatus.textContent = 'Отправляем…';
-
-      const payload = {
-        eventId: selectedEvent.id,
-        eventTitle: selectedEvent.title,
-        eventDateISO: selectedEvent.dateISO,
-        firstName: fFirst.value.trim(),
-        lastName:  fLast.value.trim(),
-        phoneRaw:  fPhone.value.trim(),
-        phoneE164: toE164(fPhone.value.trim()),
-        email:     fEmail.value.trim(),
-        submittedAtISO: new Date().toISOString(),
-        clientUA: navigator.userAgent
-      };
-
-      const ok = await sendPayload(payload);
-      if (ok) {
-        formStatus.className = 'status ok';
-        formStatus.textContent = 'Заявка отправлена! Спасибо.';
-        setTimeout(closeOverlay, 900);
-      } else {
-        formStatus.className = 'status err';
-        formStatus.textContent = 'Не удалось отправить. Попробуйте ещё раз.';
-      }
-      submitBtn.disabled = false;
-    });
-
-    // Field validation on blur
-    ['firstName','lastName','phone','email'].forEach(id => {
-      document.getElementById(id).addEventListener('blur', (e) => validateField(e.target));
-      document.getElementById(id).addEventListener('input', (e) => {
-        // Снимаем ошибку по мере ввода
-        if (e.target.parentElement.classList.contains('invalid')) validateField(e.target);
-      });
-    });
-
-    // Overlay controls
-    closeBtn.addEventListener('click', closeOverlay);
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
-    window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('open')) closeOverlay(); });
-
-    // Init
-    renderGrid();
-  </script>
-</body>
-</html>
+    <div class="dialog" role="dialog" aria-modal
