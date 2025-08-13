@@ -4,428 +4,840 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Мероприятия — Регистрация</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nata+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg:#fff; --text:#111; --muted:#667085; --brand:#0a7cff;
-      --brand-2:#7c3aed; --card:#f6f7f9; --border:#e6e8eb; --error:#e53935; --ok:#0a7c3a;
-      --overlay: rgba(0,0,0,.55);
-      --radius:16px;
-      --shadow: 0 10px 30px rgba(2,8,20,.08);
+  /* HERO */
+     body {
+      font-family: 'Nata Sans', sans-serif;
     }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif; background:var(--bg); color:var(--text); }
-    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
 
-    /* ======= HERO ======= */
-    .hero { position: relative; min-height: 56vh; display:grid; place-items:end start; overflow:hidden; border-bottom:1px solid var(--border); }
-    .hero::before { /* background image */
-      content:""; position:absolute; inset:0;
-      background-image: url('https://media.licdn.com/dms/image/v2/D4D12AQFxuo8CWk6qIg/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1681980612057?e=2147483647&v=beta&t=f9M7hoyYpXFYlLmwfvzCWg4qyzF6ixX36j3jIOnCfa0');
-      background-size: cover; background-position: center; transform: scale(1.05);
-      filter: saturate(1.05) contrast(1.02) brightness(.9);
+    /* HERO */
+    .hero {
+      position: relative;
+      background: url('https://cdn.iccbelfast.com/Hall-1-Investment-Conference-Hero-Image-ICC-Belfast-1920x1080px.jpg') center/cover no-repeat;
+      color: #fff;
+      padding: 80px 16px;
     }
-    .hero::after { /* gradient + vignette */
-      content:""; position:absolute; inset:0;
-      background: radial-gradient(100% 60% at 50% 0%, rgba(0,0,0,.25) 0%, rgba(0,0,0,.7) 100%),
-                  linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.65) 75%);
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
     }
-    .hero-inner { position:relative; width:100%; z-index:2; padding: 64px 24px 48px; }
-    .hero-content { max-width: 1100px; margin: 0 auto; color: #fff; }
 
-    .kicker { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; background: rgba(255,255,255,.1); backdrop-filter: blur(6px); border:1px solid rgba(255,255,255,.22); font-size:12px; letter-spacing:.4px; text-transform:uppercase; }
+    .hero-inner {
+      position: relative;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
 
-    .title { font-size: clamp(28px, 5vw, 52px); line-height: 1.05; margin: 14px 0 10px; font-weight: 800; letter-spacing: -.02em; }
-    .subtitle { font-size: clamp(15px, 2.3vw, 18px); color: rgba(255,255,255,.86); max-width: 720px; }
+    .hero .caption {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      opacity: 0.9;
+    }
 
-    .cta-row { margin-top: 22px; display:flex; gap:12px; align-items:center; flex-wrap: wrap; }
-    .btn-cta { padding:12px 16px; border-radius: 12px; border:1px solid rgba(255,255,255,.25); background:linear-gradient(90deg, var(--brand), var(--brand-2)); color:#fff; font-weight:700; cursor:pointer; box-shadow:0 8px 24px rgba(10,124,255,.35); transition: transform .15s ease, box-shadow .15s ease; }
-    .btn-cta:hover { transform: translateY(-1px); box-shadow:0 12px 32px rgba(10,124,255,.45); }
-    .btn-ghost { padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08); color:#fff; font-weight:600; cursor:pointer; backdrop-filter: blur(6px); }
+    .hero .subtitle {
+      font-size: 2rem;
+      font-weight: 700;
+      max-width: 900px;
+      margin: 0 auto 40px;
+      line-height: 1.3;
+    }
 
-    /* ======= HEADER ======= */
-    header { display:flex; justify-content:space-between; align-items:center; padding:16px 0 12px; }
-    header h1 { font-size:20px; margin:0; }
-    header small { color:var(--muted); }
+    /* Белая карточка */
+    .hero-card {
+      background: #fff;
+      color: #000;
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 24px;
+      align-items: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
 
-    /* ======= FILTERS ======= */
-    .toolbar { display:flex; gap:8px; align-items:center; justify-content:space-between; margin: 8px 0 16px; flex-wrap:wrap; }
-    .filters { display:flex; gap:8px; align-items:center; }
-    .chip { padding:8px 12px; border-radius:999px; border:1px solid var(--border); background:#fff; color:#111; cursor:pointer; font-size:14px; transition: all .15s ease; }
-    .chip:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
-    .chip.active { background: #eef4ff; border-color:#d1e0ff; color:#0b3bcc; }
+    .hero-card img {
+      max-height: 60px;
+      width: auto;
+    }
 
-    /* ======= GRID & CARDS ======= */
-    .grid { display:grid; gap:16px; grid-template-columns: repeat(1, minmax(0, 1fr)); }
-    @media (min-width: 680px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (min-width: 980px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+    .hero-card-content {
+      text-align: center;
+    }
 
-    .card { background:linear-gradient(#fff, #fff) padding-box, linear-gradient(180deg, #f0f3f7, #e6ebf2) border-box; border:1px solid transparent; border-radius:var(--radius);
-            padding:16px; display:flex; flex-direction:column; gap:10px; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; opacity:0; transform: translateY(10px); }
-    .card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color:#dfe6ef; cursor:pointer; }
-    .card.reveal { opacity:1; transform: none; }
-    .badge { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#3550a6; background:#eef4ff; border:1px solid #d1e0ff; border-radius:999px; padding:4px 8px; width:max-content; }
-    .card-title { font-weight:700; letter-spacing:-.01em; }
-    .card-meta { color:var(--muted); font-size:14px; }
-    .desc { color:#394150; }
+    .hero-card-content h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+    }
 
-    /* ======= OVERLAY (dialog) ======= */
-    .overlay { position:fixed; inset:0; background:var(--overlay); display:none; align-items:center; justify-content:center; padding:16px; }
-    .overlay.open { display:flex; }
-    .dialog { width: min(980px, 100%); background:#fff; border-radius: var(--radius); overflow:hidden; display:grid; grid-template-columns: 1fr; box-shadow: 0 18px 50px rgba(2,8,20,.2); }
-    @media (min-width: 860px) { .dialog { grid-template-columns: 1fr 1fr; } }
-    .left { padding:24px; border-right:1px solid var(--border); }
-    .right { padding:24px; }
-    .dialog h2 { margin:0 0 8px; }
-    .close { position:absolute; right:16px; top:16px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:6px 10px; cursor:pointer; }
-    .row { display:flex; gap:12px; }
-    .row > div { flex:1; }
+    .hero-card-content p {
+      font-size: 1rem;
+      line-height: 1.4;
+      margin: 0;
+    }
 
-    label { display:block; font-size:13px; color:#444; margin:12px 0 6px; }
-    input { width:100%; padding:12px 12px; border:1px solid var(--border); border-radius:10px; font-size:16px; outline:none; background:#fff; }
-    input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(10,124,255,.15); }
-    .invalid input { border-color: var(--error); box-shadow: 0 0 0 3px rgba(229,57,53,.12); }
-    .error { color:var(--error); font-size:12px; margin-top:4px; min-height: 14px; }
-    .hint { color:var(--muted); font-size:12px; margin-top:6px; }
+    .hero-card .btn-red {
+      background: #e00;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
 
-    .btn { margin-top:14px; width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--brand);
-           background:var(--brand); color:#fff; font-weight:700; font-size:16px; cursor:pointer; }
-    .btn[disabled] { opacity:.6; cursor:default; }
+    .hero-card .btn-red:hover {
+      background: #c00;
+    }
 
-    .status { margin-top:10px; font-size:14px; }
-    .status.ok { color: var(--ok); }
-    .status.err { color: var(--error); }
+    @media (max-width: 768px) {
+      .hero-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .hero-card img {
+        margin: 0 auto;
+      }
+      .hero-card .btn-red {
+        margin: 12px auto 0;
+      }
+    }
 
-    .hidden { display:none !important; }
+
+    /* базово: сетка и карточки */
+
+
+/* шапка */
+.event-card-header {
+  background: #e10000;
+  color: #fff;
+  padding: 16px;
+  height: 40px; /* около 100px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.event-card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+
+.event-date,
+.event-place,
+.event-desc {
+  margin: 6px 0;
+  color: #444;
+}
+/* карточка = колонка */
+.event-card{
+  border: 1px solid #e6e8eb;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;            /* NEW */
+  flex-direction: column;   /* NEW */
+}
+
+/* тело тянется, внутри — колонка */
+.event-card-body{
+  padding: 16px;
+  display: flex;            /* NEW */
+  flex-direction: column;   /* NEW */
+  gap: 6px;                 /* NEW, опционально */
+  flex: 1;                  /* NEW — занимает всё доступное пространство */
+}
+
+/* кнопка уезжает вниз */
+.event-btn{
+  margin-top: auto;         /* NEW — прижимает к низу */
+  padding: 10px 14px;
+  border: 1px solid #000;
+  background: #fff;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+
+/* SEARCH BAR — как на макете */
+.event-search{
+  max-width:1200px; margin:0 auto;
+  padding:40px 50px 40px;
+
+}
+.event-search h2{
+  margin:0; font-size:26px; font-weight:700;
+  color:#222;
+}
+
+/* строка с заголовком слева и контролами справа */
+.search-row{
+  display:flex; align-items:center; justify-content:space-between; gap:24px;
+}
+.search-controls{
+  display:flex; align-items:center; gap:12px;
+}
+
+
+/* инпут как в макете */
+.search-row input{
+  width:420px; height:40px;
+  padding:0 14px;
+  font-size:16px; line-height:40px;
+  border:1px solid #cfd3d7; border-radius:4px;
+  color:#222; outline:none;
+}
+.search-row input::placeholder{ color:#8a8f94; }
+
+/* красная кнопка справа */
+.search-row button{
+  height:40px; padding:0 18px;
+  border:none; border-radius:6px;
+  background:#e10000; color:#fff;
+  font-size:16px; font-weight:700; cursor:pointer;
+}
+.search-row button:hover{ background:#c70000; }
+
+    /* двухколоночный лэйаут: фильтры + грид карточек */
+    .events-wrapper { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 280px 1fr; gap: 24px; }
+    .filters { border: 1px solid #e6e8eb; border-radius: 12px; overflow: hidden; align-self: start; }
+    .filters header { background:#111; color:#fff; padding:12px 16px; font-weight:600; }
+    .filters .box { padding:16px; border-top:1px solid #eee; }
+    .filters .box h3 { margin:0 0 10px; font-size:16px; display:flex; align-items:center; gap:8px; }
+    .filters .muted { color:#666; font-size:14px; }
+    .filters .row { display:flex; gap:8px; }
+    .filters .full { width:100%; }
+    .filters .btn-outline { display:block; width:100%; background:#fff; border:1px solid #0a7cff; color:#0a7cff; padding:10px 12px; border-radius:8px; cursor:pointer; text-align:center; }
+
+    .events-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+
+    @media (max-width: 860px) {
+      .events-wrapper { grid-template-columns: 1fr; }
+      .filters { order: -1; }
+    }
+
+
+
+/* ===== OVERLAY v2 — fullscreen с рамкой 50px ===== */
+.overlay{position:fixed;inset:0;display:none;align-items:stretch;justify-content:center;z-index:1000;
+  background:rgba(0,0,0,.65); padding:50px;}           /* рамка 50px */
+.overlay.show{display:flex;animation:overlayFade .2s ease}
+@keyframes overlayFade{from{opacity:0}to{opacity:1}}
+
+.ov-modal{background:#fff;color:#111;border-radius:18px;overflow:hidden;
+  width:min(1200px, calc(100vw - 100px));
+  height:calc(100vh - 100px);
+  box-shadow:0 30px 80px rgba(0,0,0,.35);
+  display:grid; grid-template-rows:auto auto 1fr;
+}
+
+/* HERO внутри оверлея */
+.ov-hero{position:relative; min-height:220px; color:#fff;
+  background:url('https://videodelivery.net/ad2223e095b603c44858996d4a727ea4/thumbnails/thumbnail.jpg?time=17s') center/cover no-repeat;}
+.ov-hero::before{content:""; position:absolute; inset:0; background:rgba(0,0,0,.45);}
+.ov-hero .inner{position:relative; padding:28px 28px 40px;}
+.ov-hero h2{margin:0; font-size:36px; font-weight:700; line-height:1.2}
+
+/* Кнопка закрытия */
+.ov-close{position:absolute; top:14px; right:14px; z-index:2;
+  border:none; background:rgba(255,255,255,.9); width:40px; height:40px; border-radius:10px;
+  font-size:22px; cursor:pointer}
+.ov-close:hover{background:#fff}
+
+/* TAB BAR */
+.ov-tabs{background:#f6f7f9; border-bottom:1px solid #e6e8eb; position:sticky; top:0; z-index:1}
+.ov-tabs .row{display:flex; gap:8px; padding:10px; overflow:auto}
+.ov-tab{appearance:none; border:none; background:transparent; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:600; white-space:nowrap}
+.ov-tab[aria-current="true"], .ov-tab:hover{background:#fff; box-shadow:inset 0 0 0 1px #e6e8eb}
+
+/* CONTENT */
+.ov-content{overflow:auto; padding:24px}
+.ov-section{padding:18px 0; border-bottom:1px solid #eee}
+.ov-section h3{margin:0 0 10px; font-size:20px; font-weight:700}
+.ov-section p{margin:0; color:#444; line-height:1.55}
+
+/* CTA блок */
+.ov-cta{display:flex; justify-content:flex-end; padding-top:12px}
+.ov-cta .btn-red{background:#e10000; color:#fff; border:none; padding:12px 18px; border-radius:10px; font-weight:700; cursor:pointer}
+.ov-cta .btn-red:hover{background:#c70000}
+
+@media (max-width:740px){
+  .ov-hero{min-height:180px}
+  .ov-hero h2{font-size:28px}
+}
+
+/* Layout: main (2/3) + right aside (1/3) */
+/* Больше места правой колонке */
+.ov-grid{
+  display:grid;
+  grid-template-columns: minmax(0,1.8fr) minmax(420px,1fr); /* было 2fr / minmax(300px,1fr) */
+  gap:28px; /* чуть больше воздуха */
+}
+.ov-aside{position:sticky;top:56px;align-self:start}
+@media (max-width:980px){.ov-grid{grid-template-columns:1fr}.ov-aside{position:static}}
+
+.reg-card{background:#fff;border:1px solid #e6e8eb;border-radius:12px;padding:16px;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.reg-card h4{margin:0 0 8px;font-size:18px}
+.reg-hint{color:#666;font-size:14px;margin:0 0 12px}
+
+.form .field{margin-bottom:12px}
+.form label{display:block;font-size:14px;margin-bottom:6px;color:#333;font-weight:600}
+.form input,
+.form select,
+.form textarea {
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
+}
+.form .row{display:flex;gap:12px}
+.form .row .col{flex:1}
+.form .submit{width:100%;background:#e10000;color:#fff;border:none;padding:12px 16px;border-radius:10px;font-weight:700;cursor:pointer}
+.form .submit[disabled]{opacity:.7;cursor:default}
+.form .msg{margin-top:10px;font-size:14px}
+.form .msg.ok{color:#0a7c3a}
+.form .msg.err{color:#d32f2f}
+
+
+
+
+
+
   </style>
 </head>
 <body>
-  <!-- HERO with overlay copy -->
-  <section class="hero" aria-label="Hero">
-    <div class="hero-inner">
-      <div class="hero-content">
-        <span class="kicker">Живые встречи и онлайн</span>
-        <h1 class="title">Учись. Общайся. Расти.</h1>
-        <p class="subtitle">Подборка воркшопов и митапов — регистрируйся за минуту и приходи за практикой.</p>
-        <div class="cta-row">
-          <button class="btn-cta" id="scrollToEvents">Смотреть события</button>
-          <button class="btn-ghost" id="openNext">Ближайшее мероприятие</button>
-        </div>
+  <!-- HERO -->
+<section class="hero" aria-label="Hero">
+  <div class="hero-inner">
+    <h1>Red Hat Events</h1>
+    <p class="subtitle">Konferenzen, Online-Events, On-Demand-Webinars und mehr</p>
+
+    <div class="hero-card">
+      <!-- Левая колонка -->
+      <img src="https://www.redhat.com/rhdc/managed-files/Red%20Hat%20Summit%20Connect%20logo_0.png" alt="Red Hat Summit Connect" />
+      
+      <!-- Центральная колонка -->
+      <div class="hero-card-content">
+        <h2>Red Hat Summit: Connect 2025</h2>
+        <p>Jetzt vormerken! Besuchen Sie den Red Hat Summit: Connect 2025 in einem Ort in Ihrer Nähe. Tauschen Sie sich mit Gleichgesinnten und Experten über die aktuellen Technologien aus, testen Sie die neuesten Tools und Features und bereiten Sie sich auf kommende Herausforderungen vor.</p>
       </div>
+      
+      <!-- Правая колонка -->
+      <button class="btn-red">Mehr erfahren</button>
     </div>
+  </div>
+</section>
+
+  <!-- SEARCH BAR -->
+<section class="event-search" aria-label="Поиск мероприятий">
+  <div class="search-row">
+    <h2>Event suchen</h2>
+    <div class="search-controls">
+      <input type="text" id="eventSearch" placeholder="Alle Events durchsuchen" />
+      <button id="searchBtn">Suche</button>
+    </div>
+  </div>
+</section>
+
+  <!-- FILTERS + CARDS -->
+  <section id="events" class="events-list" aria-label="Список мероприятий">
+    <div class="events-wrapper">
+      <!-- left: filters -->
+      <aside class="filters" aria-label="Фильтры">
+        <header>Filtern</header>
+
+        <div class="box">
+          <button id="clearFilters" class="btn-outline">Filter löschen</button>
+        </div>
+
+        <!-- place -->
+        <div class="box">
+          <h3>Region</h3>
+          <div class="row">
+            <input id="placeInput" class="full" type="text" placeholder="z. B. Wien, Online…" />
+          </div>
+          <p class="muted">Фильтр по строке «place» (любая подстрока).</p>
+        </div>
+
+        <!-- time -->
+        <div class="box">
+          <h3>Zeitpunkt</h3>
+          <label><input type="radio" name="when" value="upcoming" checked /> Kommende Events</label><br/>
+          <label><input type="radio" name="when" value="past" /> Vergangene Events</label><br/>
+          <label><input type="radio" name="when" value="all" /> Alle</label>
+        </div>
+      </aside>
+
+      <!-- right: cards grid -->
+      <div class="events-grid" id="eventsGrid"></div>
+    </div>
+
   </section>
 
-  <div class="container">
-    <header>
-      <div>
-        <h1>Мероприятия</h1>
-        <small>Выберите интересное событие</small>
-      </div>
-    </header>
 
-    <!-- Filters -->
-    <div class="toolbar">
-      <div class="filters" role="tablist" aria-label="Фильтр формата">
-        <button class="chip active" data-filter="all" role="tab" aria-selected="true">Все</button>
-        <button class="chip" data-filter="online" role="tab" aria-selected="false">Онлайн</button>
-        <button class="chip" data-filter="offline" role="tab" aria-selected="false">Офлайн</button>
+  <script>
+
+    // ---------- Данные ----------
+const EVENTS = [
+  { id:"evt_001", title:"Intro zu UX Writing",
+    dateISO:"2025-09-12T18:00:00+02:00", place:"Wien, Maria-Theresien-Straße 5",
+    desc:"Grundlagen-Workshop zu UX-Texten. Übungen zu Formulierungen, Micro-Copywriting."
+  },
+  { id:"evt_002", title:"SwiftUI MVVM Tag",
+    dateISO:"2025-09-20T10:00:00+02:00", place:"Online",
+    desc:"MVVM-Architektur in der Praxis. Module, ViewModel, Navigation, State."
+  },
+  { id:"evt_003", title:"n8n + Supabase Automatisierung",
+    dateISO:"2025-10-03T14:00:00+02:00", place:"Wien, Impact Hub",
+    desc:"Integrationen und Webhooks ohne Stress. Tipps aus der Praxis."
+  },
+  { id:"evt_004", title:"HTML und Automatisierung",
+    dateISO:"2025-10-03T14:00:00+02:00", place:"Wien, Impact Hub",
+    desc:"Integrationen und Webhooks ohne Stress. Tipps aus der Praxis."
+  }
+];
+  window.EVENTS = EVENTS;   // ← добавь эту строку сразу после массива
+    // ---------- Рендер карточек ----------
+    const eventsGrid = document.getElementById("eventsGrid");
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleString("de-DE", {
+        day: "numeric", month: "long", year: "numeric",
+        hour: "2-digit", minute: "2-digit",
+        timeZoneName: "short"
+      });
+    }
+
+
+    function renderEvents(list) {
+  eventsGrid.innerHTML = "";
+  if (!list.length) {
+    eventsGrid.innerHTML = `<p class="muted">Ничего не найдено.</p>`;
+    return;
+  }
+
+  list
+    .slice()
+    .sort((a, b) => new Date(a.dateISO) - new Date(b.dateISO))
+    .forEach(evt => {
+      const card = document.createElement("article");
+      card.className = "event-card";
+      card.setAttribute("data-id", evt.id);
+
+      card.innerHTML = `
+        <div class="event-card-header">
+          <h3>${evt.title}</h3>
+        </div>
+        <div class="event-card-body">
+          <p class="event-date">${formatDate(evt.dateISO)}</p>
+          <p class="event-place">${evt.place}</p>
+          <p class="event-desc">${evt.desc}</p>
+          <button class="event-btn" data-action="details" aria-label="Подробнее о ${evt.title}">Mehr erfahren</button>
+        </div>
+      `;
+
+      eventsGrid.appendChild(card); // ← ЭТОГО НЕ ХВАТАЛО
+    });
+}
+
+    // ---------- Фильтрация ----------
+    const state = {
+      term: "",     // строка поиска
+      place: "",    // фильтр по place
+      when: "upcoming" // upcoming | past | all
+    };
+
+    function applyFilters() {
+      const now = new Date();
+
+      const filtered = EVENTS.filter(evt => {
+        const inSearch =
+          !state.term ||
+          evt.title.toLowerCase().includes(state.term) ||
+          evt.place.toLowerCase().includes(state.term) ||
+          evt.desc.toLowerCase().includes(state.term);
+
+        const inPlace =
+          !state.place || evt.place.toLowerCase().includes(state.place);
+
+        const d = new Date(evt.dateISO);
+        const inTime =
+          state.when === "all" ||
+          (state.when === "upcoming" && d >= now) ||
+          (state.when === "past" && d < now);
+
+        return inSearch && inPlace && inTime;
+      });
+
+      renderEvents(filtered);
+    }
+
+    // первоначальный рендер
+    renderEvents(EVENTS);
+
+    // ---------- Поиск + фильтры ----------
+    const searchInput = document.getElementById("eventSearch");
+    const searchBtn = document.getElementById("searchBtn");
+    const placeInput = document.getElementById("placeInput");
+    const whenRadios = document.querySelectorAll('input[name="when"]');
+    const clearBtn = document.getElementById("clearFilters");
+
+    // поиск по кнопке
+    searchBtn.addEventListener("click", () => {
+      state.term = (searchInput.value || "").toLowerCase();
+      applyFilters();
+    });
+
+    // live-поиск по вводу (опционально удобно)
+    searchInput.addEventListener("input", () => {
+      state.term = (searchInput.value || "").toLowerCase();
+      applyFilters();
+    });
+
+    // фильтр по месту
+    placeInput.addEventListener("input", () => {
+      state.place = (placeInput.value || "").toLowerCase();
+      applyFilters();
+    });
+
+    // по времени
+    whenRadios.forEach(r => r.addEventListener("change", (e) => {
+      state.when = e.target.value;
+      applyFilters();
+    }));
+
+    // сброс
+    clearBtn.addEventListener("click", () => {
+      state.term = "";
+      state.place = "";
+      state.when = "upcoming";
+      searchInput.value = "";
+      placeInput.value = "";
+      document.querySelector('input[name="when"][value="upcoming"]').checked = true;
+      applyFilters();
+    });
+
+  </script>
+
+<!-- OVERLAY -->
+<div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="ov-modal" role="document">
+    <button class="ov-close" id="ovClose" aria-label="Schließen">×</button>
+
+    <!-- HERO -->
+    <section class="ov-hero" id="ovHero">
+      <div class="inner">
+        <div class="caption" style="opacity:.9; font-weight:600; text-transform:uppercase; letter-spacing:1px; font-size:.85rem;">
+          Events
+        </div>
+        <h2 id="ovTitle">—</h2>
       </div>
+    </section>
+
+    <!-- TAB BAR -->
+    <nav class="ov-tabs" aria-label="Menü">
+      <div class="row" id="ovTabs">
+        <button class="ov-tab" data-target="#agenda"           aria-current="true">Agenda</button>
+        <button class="ov-tab" data-target="#highlights">Event Highlights</button>
+        <button class="ov-tab" data-target="#sponsors">Sponsor:innen</button>
+        <button class="ov-tab" data-target="#venue">Veranstaltungsort</button>
+        <button class="ov-tab" data-target="#register">Jetzt registrieren</button>
+      </div>
+    </nav>
+
+    <!-- CONTENT -->
+   <main class="ov-content" id="ovScrollArea">
+  <div class="ov-grid">
+    <!-- LEFT: main content -->
+    <div class="ov-main">
+      <section class="ov-section" id="agenda">
+        <h3>Agenda</h3>
+        <p id="ovDate"></p>
+        <p>
+          09:00 – Registrierung und Begrüßungskaffee<br>
+          10:00 – Keynote: The Future of Open Source<br>
+          11:30 – Breakout Sessions (Cloud, Automation, Security)<br>
+          13:00 – Mittagspause<br>
+          14:00 – Workshops & Hands-on Labs<br>
+          17:00 – Networking & Abschluss
+        </p>
+      </section>
+
+      <section class="ov-section" id="highlights">
+        <h3>Event Highlights</h3>
+        <p id="ovDesc"></p>
+        <p>
+          • Exklusive Einblicke in neue Red Hat Technologien<br>
+          • Live-Demos von Experten<br>
+          • Gelegenheit zum Austausch mit Branchenführern<br>
+          • Zertifizierte Hands-on Trainings<br>
+          • Partner-Ausstellung mit neuesten Lösungen
+        </p>
+      </section>
+
+      <section class="ov-section" id="sponsors">
+        <h3>Sponsor:innen</h3>
+        <p>
+          Hauptsponsoren: TechCorp, CloudNet, DevOpsPro<br>
+          Premium Partner: CodeBase GmbH, DataSecure AG<br>
+          Medienpartner: IT Today, OpenSource Weekly
+        </p>
+      </section>
+
+      <section class="ov-section" id="venue">
+        <h3>Veranstaltungsort</h3>
+        <p id="ovPlace"></p>
+        <p>
+          darmstadtium Wissenschafts- und Kongresszentrum<br>
+          Schlossgraben 1, 64283 Darmstadt, Deutschland<br>
+          Modernes Konferenzzentrum mit hervorragender Anbindung an ÖPNV und Hotels.
+        </p>
+      </section>
+
+      <section class="ov-section" id="register">
+        <h3>Jetzt registrieren</h3>
+        <p>
+          Sichern Sie sich jetzt Ihren Platz für das Event. Die Teilnahmeplätze sind begrenzt.
+          Frühe Anmeldung wird empfohlen.
+        </p>
+
+      </section>
     </div>
 
-    <section id="events" class="grid" aria-live="polite"></section>
-  </div>
+    <!-- RIGHT: sticky registration form -->
+    <aside class="ov-aside" aria-label="Registration form">
+      <div class="reg-card">
+        <h4>Register for the event</h4>
+        <p class="reg-hint">Mit Account einloggen oder ohne Konto anmelden.</p>
 
-  <!-- Overlay -->
-  <div id="overlay" class="overlay" aria-hidden="true">
-    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
-      <button id="closeBtn" class="close" type="button" aria-label="Закрыть">✕</button>
-      <div class="left">
-        <h2 id="dlgTitle"></h2>
-        <div id="dlgMeta" class="card-meta"></div>
-        <p id="dlgDesc" class="desc" style="margin-top:12px;"></p>
-      </div>
-      <div class="right">
-        <form id="regForm" novalidate>
+        <form id="regForm" class="form" novalidate>
           <div class="row">
-            <div>
-              <label for="firstName">Имя</label>
-              <input id="firstName" name="firstName" autocomplete="given-name" required />
-              <div class="error" data-err-for="firstName"></div>
+            <div class="col">
+              <div class="field">
+                <label for="firstName">Vorname *</label>
+                <input id="firstName" name="firstName" required />
+              </div>
             </div>
-            <div>
-              <label for="lastName">Фамилия</label>
-              <input id="lastName" name="lastName" autocomplete="family-name" required />
-              <div class="error" data-err-for="lastName"></div>
+            <div class="col">
+              <div class="field">
+                <label for="lastName">Nachname *</label>
+                <input id="lastName" name="lastName" required />
+              </div>
             </div>
           </div>
 
-          <label for="phone">Телефон</label>
-          <input id="phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="+43 660 1234567" required />
-          <div class="error" data-err-for="phone"></div>
+          <div class="field">
+            <label for="email">Email *</label>
+            <input id="email" type="email" name="email" required />
+          </div>
 
-          <label for="email">Email</label>
-          <input id="email" name="email" type="email" autocomplete="email" required />
-          <div class="error" data-err-for="email"></div>
+          <div class="field">
+            <label for="phone">Telefon</label>
+            <input id="phone" name="phone" />
+          </div>
 
-          <button class="btn" id="submitBtn" type="submit">Отправить</button>
-          <div id="formStatus" class="status hidden"></div>
-          <div class="hint">Нажимая «Отправить», вы соглашаетесь с обработкой данных.</div>
+          <div class="field">
+            <label for="company">Firmenname</label>
+            <input id="company" name="company" />
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <div class="field">
+                <label for="country">Land</label>
+                <input id="country" name="country" />
+              </div>
+            </div>
+            <div class="col">
+              <div class="field">
+                <label for="city">Stadt</label>
+                <input id="city" name="city" />
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label><input type="checkbox" id="consent" required /> Ich stimme der Verarbeitung meiner Daten zu.</label>
+          </div>
+
+          <button class="submit" type="submit" id="regSubmit">Get started</button>
+          <div class="msg" id="regMsg"></div>
         </form>
       </div>
-    </div>
+    </aside>
   </div>
+</main>
 
-  <script>
-    // ---------- Mock events ----------
-    const EVENTS = [
-      { id:"evt_001", title:"Intro to UX Writing",
-        dateISO:"2025-09-12T18:00:00+02:00", place:"Vienna, Maria-Theresien-Straße 5",
-        desc:"Базовый воркшоп по UX‑копирайтингу. Практика формулировок, микро‑копирайтинг.",
-      },
-      { id:"evt_002", title:"SwiftUI MVVM Day",
-        dateISO:"2025-09-20T10:00:00+02:00", place:"Online",
-        desc:"Архитектура MVVM на практике. Модули, ViewModel, навигация, стейт.",
-      },
-      { id:"evt_003", title:"n8n + Supabase Automation",
-        dateISO:"2025-10-03T14:00:00+02:00", place:"Wien, Impact Hub",
-        desc:"Интеграции и вебхуки без боли. Лайфхаки продакшена.",
-      }
-    ];
 
-    const WEBHOOK_URL = "https://betters-technology.site/webhook/a62b454b-ab36-443a-bccd-8d736b4b8a7a";
+  </div>
+</div>
 
-    // ---------- DOM refs ----------
-    const grid = document.getElementById('events');
-    const overlay = document.getElementById('overlay');
-    const closeBtn = document.getElementById('closeBtn');
-    const dlgTitle = document.getElementById('dlgTitle');
-    const dlgMeta  = document.getElementById('dlgMeta');
-    const dlgDesc  = document.getElementById('dlgDesc');
-    const form = document.getElementById('regForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const formStatus = document.getElementById('formStatus');
-    const scrollToEventsBtn = document.getElementById('scrollToEvents');
-    const openNextBtn = document.getElementById('openNext');
+<script>
+  // === Overlay wiring v2 ===
+const overlayEl = document.getElementById("overlay");
+const ovClose   = document.getElementById("ovClose");
+const ovTitleEl = document.getElementById("ovTitle");
+const ovDateEl  = document.getElementById("ovDate");
+const ovPlaceEl = document.getElementById("ovPlace");
+const ovDescEl  = document.getElementById("ovDesc");
+const ovHero    = document.getElementById("ovHero");
+const ovScroll  = document.getElementById("ovScrollArea");
 
-    let selectedEvent = null;
-    let lastFocus = null;
-    let filterMode = 'all';
+// фон для героя — твоя картинка по умолчанию
+const DEFAULT_HERO_BG = "https://videodelivery.net/ad2223e095b603c44858996d4a727ea4/thumbnails/thumbnail.jpg?time=17s";
 
-    // ---------- Utils ----------
-    const fmtDate = (iso) => {
-      try {
-        const d = new Date(iso);
-        return new Intl.DateTimeFormat('ru-RU', { dateStyle:'medium', timeStyle:'short' }).format(d);
-      } catch { return iso; }
+function fmt(iso){
+  const d = new Date(iso);
+  return d.toLocaleString("de-DE", { day:"numeric", month:"long", year:"numeric",
+    hour:"2-digit", minute:"2-digit", timeZoneName:"short" });
+}
+
+function closeOverlay(){
+  overlayEl.classList.remove("show");
+  overlayEl.setAttribute("aria-hidden","true");
+  document.body.style.overflow = "";
+}
+
+// закрытие
+overlayEl.addEventListener("click", e => { if (e.target === overlayEl) closeOverlay(); });
+ovClose.addEventListener("click", closeOverlay);
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeOverlay(); });
+
+// клик по карточке — открываем
+document.getElementById("eventsGrid").addEventListener("click", (e)=>{
+  const btn = e.target.closest('[data-action="details"]');
+  if (!btn) return;
+  const id = btn.closest(".event-card")?.getAttribute("data-id");
+  const evt = (window.EVENTS || []).find(x => x.id === id);
+  if (evt) openEventOverlay(evt);
+});
+
+// TAB BAR: скроллим к секции
+function setActiveTab(tabBtn){
+  document.querySelectorAll('.ov-tab').forEach(b=>b.removeAttribute('aria-current'));
+  tabBtn?.setAttribute('aria-current','true');
+}
+document.getElementById("ovTabs").addEventListener("click", (e)=>{
+  const btn = e.target.closest(".ov-tab");
+  if(!btn) return;
+  const sel = btn.getAttribute("data-target");
+  const target = sel ? document.querySelector(sel) : null;
+  if(target){
+    setActiveTab(btn);
+    target.scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+});
+
+
+
+// экспорт при желании вызывать из hero
+window.openEventOverlay = openEventOverlay;
+
+let currentEvent = null; // активное событие в оверлее
+
+function openEventOverlay(evt){
+  currentEvent = evt; // <-- добавили
+window.currentEvent = evt;   // <— добавь эту строку
+  ovTitleEl.textContent = evt.title || "";
+  if (ovDateEl)  ovDateEl.textContent  = evt.dateISO ? fmt(evt.dateISO) : "";
+  if (ovPlaceEl) ovPlaceEl.textContent = evt.place || "";
+  if (ovDescEl)  ovDescEl.textContent  = evt.desc || "";
+
+  const bg = evt.image || DEFAULT_HERO_BG;
+  ovHero.style.backgroundImage = `url("${bg}")`;
+
+  overlayEl.classList.add("show");
+  overlayEl.setAttribute("aria-hidden","false");
+  document.body.style.overflow = "hidden";
+  ovScroll.scrollTop = 0;
+  setActiveTab(document.querySelector('.ov-tab[data-target="#agenda"]'));
+}
+
+// submit → твой WEBHOOK_URL
+const WEBHOOK_URL = "https://betters-technology.site/webhook/a62b454b-ab36-443a-bccd-8d736b4b8a7a";
+const regForm   = document.getElementById("regForm");
+const regMsg    = document.getElementById("regMsg");
+const regSubmit = document.getElementById("regSubmit");
+
+function postWithTimeout(url, options = {}, timeoutMs = 15000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: ctrl.signal }).finally(() => clearTimeout(t));
+}
+
+if (regForm) {
+  // на всякий случай вешаем и click, и submit
+  regSubmit?.addEventListener("click", () => regForm.requestSubmit());
+
+  regForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    regMsg.className = "msg";
+    regMsg.textContent = "";
+
+    const data = {
+      type: "event_registration",
+      eventId:   (window.currentEvent?.id)    ?? null,
+      eventTitle:(window.currentEvent?.title) ?? null,
+      firstName: regForm.firstName.value.trim(),
+      lastName:  regForm.lastName.value.trim(),
+      email:     regForm.email.value.trim(),
+      phone:     regForm.phone.value.trim(),
+      company:   regForm.company.value.trim(),
+      country:   regForm.country.value.trim(),
+      city:      regForm.city.value.trim(),
+      consent:   regForm.consent.checked,
+      // полезные метаданные
+      pageUrl:   location.href,
+      userAgent: navigator.userAgent,
+      ts:        new Date().toISOString()
     };
-    const onlyDigits = (s) => (s || '').replace(/\D/g,'');
-    const toE164 = (raw) => {
-      const digits = onlyDigits(raw);
-      if (!digits) return null;
-      if (raw.trim().startsWith('+')) return '+' + digits;
-      return '+' + digits;
-    };
 
-    const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿА-Яа-яЁё' -]{2,50}$/;
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-    function setError(field, message) {
-      field.parentElement.classList.add('invalid');
-      const el = document.querySelector(`.error[data-err-for="${field.id}"]`);
-      if (el) el.textContent = message || '';
-      field.setAttribute('aria-invalid', 'true');
-    }
-    function clearError(field) {
-      field.parentElement.classList.remove('invalid');
-      const el = document.querySelector(`.error[data-err-for="${field.id}"]`);
-      if (el) el.textContent = '';
-      field.removeAttribute('aria-invalid');
+    if (!data.firstName || !data.lastName || !data.email || !data.consent) {
+      regMsg.className = "msg err";
+      regMsg.textContent = "Bitte füllen Sie alle Pflichtfelder aus.";
+      return;
     }
 
-    function validateField(field) {
-      const v = field.value.trim();
-      if (field.id === 'firstName' || field.id === 'lastName') {
-        if (!v) { setError(field, 'Обязательное поле'); return false; }
-        if (!nameRe.test(v)) { setError(field, 'Только буквы, 2–50 символов'); return false; }
-      }
-      if (field.id === 'email') {
-        if (!v) { setError(field, 'Укажите email'); return false; }
-        if (!emailRe.test(v)) { setError(field, 'Неверный формат email'); return false; }
-      }
-      if (field.id === 'phone') {
-        const digits = onlyDigits(v);
-        if (!digits) { setError(field, 'Укажите телефон'); return false; }
-        if (digits.length < 10 || digits.length > 15) { setError(field, 'Телефон: 10–15 цифр'); return false; }
-      }
-      clearError(field);
-      return true;
+    try {
+      regSubmit.disabled = true;
+      const origText = regSubmit.textContent;
+      regSubmit.textContent = "Sending…";
+
+      const res = await postWithTimeout(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      }, 15000);
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      regMsg.className = "msg ok";
+      regMsg.textContent = "Danke! Ihre Anmeldung wurde gesendet.";
+      regForm.reset();
+    } catch (err) {
+      regMsg.className = "msg err";
+      regMsg.textContent = "Fehler beim Senden. Bitte versuchen Sie es erneut.";
+      console.error(err);
+    } finally {
+      regSubmit.disabled = false;
+      regSubmit.textContent = "Get started";
     }
-
-    function validateForm() {
-      const fields = ['firstName','lastName','phone','email'].map(id => document.getElementById(id));
-      let ok = true;
-      fields.forEach(f => { if (!validateField(f)) ok = false; });
-      return ok;
-    }
-
-    function openOverlay(ev) {
-      selectedEvent = ev;
-      dlgTitle.textContent = ev.title;
-      dlgMeta.textContent = `${fmtDate(ev.dateISO)} · ${ev.place}`;
-      dlgDesc.textContent = ev.desc;
-
-      form.reset();
-      document.querySelectorAll('.error').forEach(e => e.textContent = '');
-      document.querySelectorAll('#regForm .invalid').forEach(e => e.classList.remove('invalid'));
-      formStatus.className = 'status hidden';
-      formStatus.textContent = '';
-
-      lastFocus = document.activeElement;
-      overlay.classList.add('open');
-      overlay.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-      setTimeout(() => document.getElementById('firstName').focus(), 30);
-    }
-
-    function closeOverlay() {
-      overlay.classList.remove('open');
-      overlay.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-      if (lastFocus) lastFocus.focus();
-    }
-
-    // ---------- Render cards (with filter) ----------
-    function applyFilter(list) {
-      if (filterMode === 'online') return list.filter(e => /online/i.test(e.place));
-      if (filterMode === 'offline') return list.filter(e => !/online/i.test(e.place));
-      return list;
-    }
-
-    function renderGrid() {
-      const data = applyFilter(EVENTS);
-      grid.innerHTML = '';
-      data.forEach((ev, i) => {
-        const card = document.createElement('article');
-        card.className = 'card';
-        card.tabIndex = 0;
-        card.innerHTML = `
-          <span class="badge">${new Date(ev.dateISO).toLocaleDateString('ru-RU', { day:'2-digit', month:'short' })}</span>
-          <div class="card-title">${ev.title}</div>
-          <div class="card-meta">${fmtDate(ev.dateISO)} · ${ev.place}</div>
-          <div class="desc">${ev.desc}</div>
-        `;
-        card.addEventListener('click', () => openOverlay(ev));
-        card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openOverlay(ev); }});
-        grid.appendChild(card);
-        // Staggered reveal
-        setTimeout(() => card.classList.add('reveal'), 40 * i);
-      });
-    }
-
-    // ---------- Submit ----------
-    async function sendPayload(payload) {
-      try {
-        const res = await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          mode: 'cors',
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return true;
-      } catch (err) {
-        try { navigator.sendBeacon && navigator.sendBeacon(WEBHOOK_URL, new Blob([JSON.stringify(payload)], { type:'application/json' })); } catch {}
-        try { await fetch(WEBHOOK_URL, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain'}, mode:'no-cors', keepalive:true }); } catch {}
-        return true;
-      }
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fFirst = document.getElementById('firstName');
-      const fLast  = document.getElementById('lastName');
-      const fPhone = document.getElementById('phone');
-      const fEmail = document.getElementById('email');
-
-      [fFirst,fLast,fPhone,fEmail].forEach(clearError);
-      if (!validateForm()) return;
-
-      submitBtn.disabled = true;
-      formStatus.className = 'status';
-      formStatus.textContent = 'Отправляем…';
-
-      const payload = {
-        eventId: selectedEvent.id,
-        eventTitle: selectedEvent.title,
-        eventDateISO: selectedEvent.dateISO,
-        firstName: fFirst.value.trim(),
-        lastName:  fLast.value.trim(),
-        phoneRaw:  fPhone.value.trim(),
-        phoneE164: toE164(fPhone.value.trim()),
-        email:     fEmail.value.trim(),
-        submittedAtISO: new Date().toISOString(),
-        clientUA: navigator.userAgent
-      };
-
-      const ok = await sendPayload(payload);
-      if (ok) {
-        formStatus.className = 'status ok';
-        formStatus.textContent = 'Заявка отправлена! Спасибо.';
-        setTimeout(closeOverlay, 900);
-      } else {
-        formStatus.className = 'status err';
-        formStatus.textContent = 'Не удалось отправить. Попробуйте ещё раз.';
-      }
-      submitBtn.disabled = false;
-    });
-
-    // Field validation on blur + live
-    ['firstName','lastName','phone','email'].forEach(id => {
-      document.getElementById(id).addEventListener('blur', (e) => validateField(e.target));
-      document.getElementById(id).addEventListener('input', (e) => {
-        if (e.target.parentElement.classList.contains('invalid')) validateField(e.target);
-      });
-    });
-
-    // Overlay controls
-    closeBtn.addEventListener('click', closeOverlay);
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
-    window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('open')) closeOverlay(); });
-
-    // Scroll to grid
-    scrollToEventsBtn.addEventListener('click', () => {
-      document.getElementById('events').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-
-    // Open nearest upcoming event
-    openNextBtn.addEventListener('click', () => {
-      const now = Date.now();
-      const next = [...EVENTS].filter(e => new Date(e.dateISO).getTime() >= now).sort((a,b) => new Date(a.dateISO)-new Date(b.dateISO))[0] || EVENTS[0];
-      openOverlay(next);
-    });
-
-    // Filters
-    document.querySelectorAll('.chip').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.chip').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
-        btn.classList.add('active');
-        btn.setAttribute('aria-selected','true');
-        filterMode = btn.dataset.filter;
-        renderGrid();
-      });
-    });
-
-    // Reveal on scroll (progressive, if JS enabled)
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add('reveal'); });
-    }, { threshold: .1 });
-
-    const observeCards = () => document.querySelectorAll('.card').forEach(c => io.observe(c));
-
-    // Init
-    renderGrid();
-    // Observe after first render
-    setTimeout(observeCards, 0);
-  </script>
+  });
+}
+</script>
 </body>
 </html>
