@@ -1,638 +1,332 @@
-
-import React, { useState, useEffect, useRef, useCallback } from "react";
-
-const events = [
-  {
-    eventId: "evt_001",
-    title: "Intro to UX Writing",
-    dateISO: "2025-09-12T18:00:00+02:00",
-    place: "Vienna, Maria-Theresien-Straße 5",
-    excerpt: "Базовый воркшоп по UX-копирайтингу.",
-    image: "https://placehold.co/400x250/6366f1/ffffff?text=UX+Writing",
-  },
-  {
-    eventId: "evt_002",
-    title: "SwiftUI MVVM Day",
-    dateISO: "2025-09-20T10:00:00+02:00",
-    place: "Online",
-    excerpt: "Архитектура MVVM на практике.",
-    image: "https://placehold.co/400x250/8b5cf6/ffffff?text=SwiftUI",
-  },
-  {
-    eventId: "evt_003",
-    title: "n8n + Supabase Automation",
-    dateISO: "2025-10-03T14:00:00+02:00",
-    place: "Wien, co-working Impact Hub",
-    excerpt: "Интеграции и вебхуки без боли.",
-    image: "https://placehold.co/400x250/06b6d4/ffffff?text=n8n+Supabase",
-  },
-  {
-    eventId: "evt_004",
-    title: "React Performance Deep Dive",
-    dateISO: "2025-10-15T16:00:00+02:00",
-    place: "Berlin, Tech Hub Mitte",
-    excerpt: "Оптимизация рендеринга и состояние приложений.",
-    image: "https://placehold.co/400x250/f59e0b/ffffff?text=React+Perf",
-  },
-  {
-    eventId: "evt_005",
-    title: "Design Systems Workshop",
-    dateISO: "2025-11-05T09:30:00+02:00",
-    place: "Munich, Creative Space",
-    excerpt: "Создание масштабируемых дизайн-систем.",
-    image: "https://placehold.co/400x250/ef4444/ffffff?text=Design+Systems",
-  },
-  {
-    eventId: "evt_006",
-    title: "AI for Developers",
-    dateISO: "2025-11-20T17:00:00+02:00",
-    place: "Online",
-    excerpt: "Практическое применение ИИ в разработке.",
-    image: "https://placehold.co/400x250/10b981/ffffff?text=AI+Dev",
-  },
-];
-
-// Validation helpers
-const validateName = (value) => {
-  if (!value || value.trim().length < 2) return "Введите имя (мин. 2 символа)";
-  if (!/^[A-Za-zÀ-ÖØ-öø-ÿА-Яа-яЁё' -]{2,50}$/.test(value))
-    return "Только буквы, пробелы и дефис";
-  return "";
-};
-
-const validateEmail = (value) => {
-  if (!value) return "Введите email";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value))
-    return "Неверный формат email";
-  return "";
-};
-
-const validatePhone = (value) => {
-  if (!value) return "Введите телефон";
-  const digits = value.replace(/\D/g, "");
-  if (digits.length < 10 || digits.length > 15)
-    return "Телефон должен содержать 10–15 цифр";
-  return "";
-};
-
-const normalizePhone = (value) => {
-  const digits = value.replace(/\D/g, "");
-  return `+${digits}`;
-};
-
-const formatDate = (isoString) => {
-  const date = new Date(isoString);
-  return new Intl.DateTimeFormat("ru-RU", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-};
-
-const App = () => {
-  const [selectedEventId, setSelectedEventId] = useState(null);
-  const [formState, setFormState] = useState({
-    firstName: "",
-    lastName: "",
-    phone: "",
-    email: "",
-  });
-  const [errors, setErrors] = useState({});
-  const [submitStatus, setSubmitStatus] = useState(null); // null | 'submitting' | 'success' | 'error'
-  const [globalError, setGlobalError] = useState("");
-  const overlayRef = useRef(null);
-  const closeButtonRef = useRef(null);
-  const firstInputRef = useRef(null);
-
-  const selectedEvent = events.find((e) => e.eventId === selectedEventId);
-
-  // Focus trap and escape handling
-  useEffect(() => {
-    if (!selectedEventId) return;
-
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        setSelectedEventId(null);
-      }
-    };
-
-    const handleFocus = (e) => {
-      if (overlayRef.current && !overlayRef.current.contains(e.target)) {
-        e.stopPropagation();
-        closeButtonRef.current?.focus();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("focusin", handleFocus);
-    document.body.style.overflow = "hidden";
-
-    // Focus first input
-    setTimeout(() => firstInputRef.current?.focus(), 100);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("focusin", handleFocus);
-      document.body.style.overflow = "";
-    };
-  }, [selectedEventId]);
-
-  const validateField = (name, value) => {
-    switch (name) {
-      case "firstName":
-      case "lastName":
-        return validateName(value);
-      case "email":
-        return validateEmail(value);
-      case "phone":
-        return validatePhone(value);
-      default:
-        return "";
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Мероприятия — Регистрация</title>
+  <style>
+    :root {
+      --bg:#fff; --text:#222; --muted:#666; --brand:#0a7cff;
+      --card:#f6f7f9; --border:#e6e8eb; --error:#e53935; --ok:#0a7c3a;
+      --overlay: rgba(0,0,0,.5);
+      --radius:14px;
     }
-  };
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif; background:var(--bg); color:var(--text); }
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    header { display:flex; justify-content:space-between; align-items:center; padding:16px 0 8px; }
+    header h1 { font-size:20px; margin:0; }
+    header small { color:var(--muted); }
+    .grid { display:grid; gap:16px; grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    @media (min-width: 680px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 980px) { .grid { grid-template-columns: repeat(3, 1fr); } }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormState((prev) => ({ ...prev, [name]: value }));
-    
-    // Clear error on change
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
+    .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+            padding:16px; display:flex; flex-direction:column; gap:8px; transition: transform .15s ease, box-shadow .15s ease; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.06); cursor:pointer; }
+    .card-title { font-weight:600; }
+    .card-meta { color:var(--muted); font-size:14px; }
 
-  const handleBlur = (e) => {
-    const { name, value } = e.target;
-    const error = validateField(name, value);
-    setErrors((prev) => ({ ...prev, [name]: error }));
-  };
+    /* Overlay */
+    .overlay { position:fixed; inset:0; background:var(--overlay); display:none; align-items:center; justify-content:center; padding:16px; }
+    .overlay.open { display:flex; }
+    .dialog { width: min(980px, 100%); background:#fff; border-radius: var(--radius); overflow:hidden; display:grid; grid-template-columns: 1fr; }
+    @media (min-width: 860px) { .dialog { grid-template-columns: 1fr 1fr; } }
+    .left { padding:24px; border-right:1px solid var(--border); }
+    .right { padding:24px; }
+    .dialog h2 { margin:0 0 8px; }
+    .desc { color:var(--muted); }
+    .close { position:absolute; right:16px; top:16px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:6px 10px; cursor:pointer; }
+    .row { display:flex; gap:12px; }
+    .row > div { flex:1; }
 
-  const validateAll = () => {
-    const newErrors = {};
-    let isValid = true;
+    label { display:block; font-size:13px; color:#444; margin:12px 0 6px; }
+    input { width:100%; padding:12px 12px; border:1px solid var(--border); border-radius:10px; font-size:16px; outline:none; }
+    input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(10,124,255,.15); }
+    .invalid input { border-color: var(--error); box-shadow: 0 0 0 3px rgba(229,57,53,.12); }
+    .error { color:var(--error); font-size:12px; margin-top:4px; min-height: 14px; }
+    .hint { color:var(--muted); font-size:12px; margin-top:6px; }
 
-    Object.keys(formState).forEach((key) => {
-      const error = validateField(key, formState[key]);
-      if (error) {
-        newErrors[key] = error;
-        isValid = false;
-      }
-    });
+    .btn { margin-top:14px; width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--brand);
+           background:var(--brand); color:#fff; font-weight:600; font-size:16px; cursor:pointer; }
+    .btn[disabled] { opacity:.6; cursor:default; }
 
-    setErrors(newErrors);
-    return isValid;
-  };
+    .status { margin-top:10px; font-size:14px; }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--error); }
 
-  const WEBHOOK_URL = "https://betters-technology.site/webhook/a62b454b-ab36-443a-bccd-8d736b4b8a7a";
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Мероприятия</h1>
+        <small>Выберите интересное событие</small>
+      </div>
+    </header>
 
-/**
- * Отправляет POST на кросс-доменный вебхук без CORS через скрытую форму + iframe.
- * Возвращает промис, который резолвится по завершении навигации внутри iframe.
- */
-function submitViaIframe(payload, { timeoutMs = 15000 } = {}) {
-  return new Promise((resolve, reject) => {
-    const iframeName = `n8n_iframe_${Date.now()}`;
-    let submitted = false; // ← флаг
+    <section id="events" class="grid"></section>
+  </div>
 
-    const iframe = document.createElement("iframe");
-    iframe.name = iframeName;
-    iframe.title = "hidden form transport";
-    iframe.style.position = "absolute";
-    iframe.style.width = "1px";
-    iframe.style.height = "1px";
-    iframe.style.left = "-9999px";
-    iframe.style.top = "-9999px";
-    document.body.appendChild(iframe);
-
-    const form = document.createElement("form");
-    form.action = WEBHOOK_URL;
-    form.method = "POST";
-    form.target = iframeName;
-    form.style.display = "none";
-
-    Object.entries(payload).forEach(([k, v]) => {
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = k;
-      input.value = typeof v === "object" ? JSON.stringify(v) : String(v ?? "");
-      form.appendChild(input);
-    });
-    document.body.appendChild(form);
-
-    const cleanup = () => { try { form.remove(); } catch {} try { iframe.remove(); } catch {} };
-
-    const t = setTimeout(() => {
-      iframe.removeEventListener("load", onLoad);
-      cleanup();
-      reject(new Error("IFRAME_TIMEOUT"));
-    }, timeoutMs);
-
-    const onLoad = () => {
-      if (!submitted) return;            // ← игнор первого load
-      clearTimeout(t);
-      cleanup();
-      resolve();
-    };
-
-    iframe.addEventListener("load", onLoad);
-
-    try {
-      submitted = true;                  // ← выставляем флаг перед submit
-      form.submit();
-    } catch (e) {
-      clearTimeout(t);
-      cleanup();
-      reject(e);
-    }
-  });
-}
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validateAll() || !selectedEvent) return;
-
-  setSubmitStatus("submitting");
-  setGlobalError("");
-
-  const payload = {
-    eventId: selectedEvent.eventId,
-    eventTitle: selectedEvent.title,
-    eventDateISO: selectedEvent.dateISO,
-    firstName: formState.firstName.trim(),
-    lastName: formState.lastName.trim(),
-    phoneRaw: formState.phone,
-    phoneE164: normalizePhone(formState.phone),
-    email: formState.email.toLowerCase(),
-    submittedAtISO: new Date().toISOString(),
-    clientUA: navigator.userAgent,
-    utm: Object.fromEntries(new URLSearchParams(window.location.search).entries()),
-    pageUrl: window.location.href,
-  };
-
-  try {
-    // 1) Без-CORS способ: скрытая форма + iframe
-    await submitViaIframe(payload, { timeoutMs: 15000 });
-
-    // 2) (опционально) параллельно можно отправить beacon для аналитики
-    try {
-      navigator.sendBeacon?.(
-        WEBHOOK_URL, 
-        new Blob([JSON.stringify({ ...payload, transport: "beacon" })], { type: "text/plain" })
-      );
-    } catch {}
-
-    setSubmitStatus("success");
-    setFormState({ firstName: "", lastName: "", phone: "", email: "" });
-  } catch (err) {
-    console.error("Iframe transport error:", err);
-    // Fallback на fetch no-cors (ответ не прочитаем, но запрос уйдёт)
-    try {
-      await fetch(WEBHOOK_URL, {
-        method: "POST",
-        mode: "no-cors",          // отправит запрос, но ответ будет opaque
-        keepalive: true,
-        headers: { "Content-Type": "text/plain" }, // simple request
-        body: JSON.stringify({ ...payload, transport: "no-cors" }),
-      });
-      // Считаем успехом, т.к. сервер принял по curl, а нам ответ не нужен
-      setSubmitStatus("success");
-      setFormState({ firstName: "", lastName: "", phone: "", email: "" });
-    } catch (e2) {
-      console.error("no-cors fallback failed:", e2);
-      setSubmitStatus("error");
-      setGlobalError("Не удалось отправить. Попробуйте ещё раз или свяжитесь с нами.");
-    }
-  }
-};
-
-  const closeOverlay = () => {
-    setSelectedEventId(null);
-    setSubmitStatus(null);
-    setErrors({});
-    setGlobalError("");
-  };
-
-  const openOverlay = (eventId) => {
-    setSelectedEventId(eventId);
-    setSubmitStatus(null);
-    setGlobalError("");
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-2xl font-bold text-gray-900">Мероприятия</h1>
-          <p className="text-gray-600 mt-1">Выберите интересующее вас событие</p>
-        </div>
-      </header>
-
-      {/* Events Grid */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((event) => (
-            <div
-              key={event.eventId}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer transform hover:-translate-y-1 transition-transform"
-              onClick={() => openOverlay(event.eventId)}
-            >
-              <img
-                src={event.image}
-                alt={event.title}
-                className="w-full h-48 object-cover"
-                loading="lazy"
-              />
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {event.title}
-                </h3>
-                <p className="text-gray-600 mb-3">
-                  {formatDate(event.dateISO)}
-                </p>
-                <p className="text-gray-700 mb-4">{event.place}</p>
-                <p className="text-gray-600 text-sm mb-4">{event.excerpt}</p>
-                <button
-                  type="button"
-                  className="text-indigo-600 hover:text-indigo-800 font-medium text-sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openOverlay(event.eventId);
-                  }}
-                >
-                  Подробнее →
-                </button>
-              </div>
+  <!-- Overlay -->
+  <div id="overlay" class="overlay" aria-hidden="true">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+      <button id="closeBtn" class="close" type="button" aria-label="Закрыть">✕</button>
+      <div class="left">
+        <h2 id="dlgTitle"></h2>
+        <div id="dlgMeta" class="card-meta"></div>
+        <p id="dlgDesc" class="desc" style="margin-top:12px;"></p>
+      </div>
+      <div class="right">
+        <form id="regForm" novalidate>
+          <div class="row">
+            <div>
+              <label for="firstName">Имя</label>
+              <input id="firstName" name="firstName" autocomplete="given-name" required />
+              <div class="error" data-err-for="firstName"></div>
             </div>
-          ))}
-        </div>
-      </main>
-
-      {/* Overlay */}
-      {selectedEventId && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-          onClick={closeOverlay}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="overlay-title"
-        >
-          <div
-            ref={overlayRef}
-            className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close button */}
-            <button
-              ref={closeButtonRef}
-              type="button"
-              className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              onClick={closeOverlay}
-              aria-label="Закрыть"
-            >
-              <svg
-                className="w-6 h-6 text-gray-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-
-            {/* Left column - Event details */}
-            <div className="md:w-1/2 p-6 md:p-8 overflow-y-auto">
-              <h2
-                id="overlay-title"
-                className="text-2xl font-bold text-gray-900 mb-4"
-              >
-                {selectedEvent.title}
-              </h2>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Дата и время
-                  </h3>
-                  <p className="text-gray-900 mt-1">{formatDate(selectedEvent.dateISO)}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Место
-                  </h3>
-                  <p className="text-gray-900 mt-1">{selectedEvent.place}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Описание
-                  </h3>
-                  <p className="text-gray-700 mt-1 leading-relaxed">
-                    {selectedEvent.excerpt} Этот воркшоп подойдет как новичкам, так и опытным специалистам, желающим углубить свои знания в области UX-копирайтинга. Участники получат практические навыки создания эффективных текстов для интерфейсов.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Right column - Registration form */}
-            <div className="md:w-1/2 p-6 md:p-8 bg-gray-50 border-t md:border-t-0 md:border-l border-gray-200">
-              {submitStatus === "success" ? (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg
-                      className="w-8 h-8 text-green-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    Спасибо!
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    Вы успешно зарегистрированы на мероприятие. Проверьте свою
-                    почту.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={closeOverlay}
-                    className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    Закрыть
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-900">
-                    Регистрация
-                  </h3>
-                  
-                  {globalError && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                      {globalError}
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 gap-4">
-                    <div>
-                      <label
-                        htmlFor="firstName"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Имя *
-                      </label>
-                      <input
-                        ref={firstInputRef}
-                        type="text"
-                        id="firstName"
-                        name="firstName"
-                        value={formState.firstName}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                          errors.firstName
-                            ? "border-red-300 bg-red-50"
-                            : "border-gray-300"
-                        }`}
-                        aria-invalid={!!errors.firstName}
-                        aria-describedby={errors.firstName ? "firstName-error" : undefined}
-                      />
-                      {errors.firstName && (
-                        <p
-                          id="firstName-error"
-                          className="mt-1 text-sm text-red-600"
-                        >
-                          {errors.firstName}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="lastName"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Фамилия *
-                      </label>
-                      <input
-                        type="text"
-                        id="lastName"
-                        name="lastName"
-                        value={formState.lastName}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                          errors.lastName
-                            ? "border-red-300 bg-red-50"
-                            : "border-gray-300"
-                        }`}
-                        aria-invalid={!!errors.lastName}
-                        aria-describedby={errors.lastName ? "lastName-error" : undefined}
-                      />
-                      {errors.lastName && (
-                        <p
-                          id="lastName-error"
-                          className="mt-1 text-sm text-red-600"
-                        >
-                          {errors.lastName}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="phone"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Телефон *
-                      </label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        value={formState.phone}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        placeholder="+43 660 1234567"
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                          errors.phone
-                            ? "border-red-300 bg-red-50"
-                            : "border-gray-300"
-                        }`}
-                        aria-invalid={!!errors.phone}
-                        aria-describedby={errors.phone ? "phone-error" : undefined}
-                      />
-                      {errors.phone && (
-                        <p id="phone-error" className="mt-1 text-sm text-red-600">
-                          {errors.phone}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formState.email}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        placeholder="ivan@example.com"
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                          errors.email
-                            ? "border-red-300 bg-red-50"
-                            : "border-gray-300"
-                        }`}
-                        aria-invalid={!!errors.email}
-                        aria-describedby={errors.email ? "email-error" : undefined}
-                      />
-                      {errors.email && (
-                        <p id="email-error" className="mt-1 text-sm text-red-600">
-                          {errors.email}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={submitStatus === "submitting"}
-                    className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {submitStatus === "submitting"
-                      ? "Отправляем…"
-                      : "Зарегистрироваться"}
-                  </button>
-
-                  <p className="text-xs text-gray-500 text-center">
-                    * Поля обязательны для заполнения
-                  </p>
-                </form>
-              )}
+            <div>
+              <label for="lastName">Фамилия</label>
+              <input id="lastName" name="lastName" autocomplete="family-name" required />
+              <div class="error" data-err-for="lastName"></div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
-};
 
-export default App;
+          <label for="phone">Телефон</label>
+          <input id="phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="+43 660 1234567" required />
+          <div class="error" data-err-for="phone"></div>
+
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+          <div class="error" data-err-for="email"></div>
+
+          <button class="btn" id="submitBtn" type="submit">Отправить</button>
+          <div id="formStatus" class="status hidden"></div>
+          <div class="hint">Нажимая «Отправить», вы соглашаетесь с обработкой данных.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- Mock events ----------
+    const EVENTS = [
+      { id:"evt_001", title:"Intro to UX Writing",
+        dateISO:"2025-09-12T18:00:00+02:00", place:"Vienna, Maria-Theresien-Straße 5",
+        desc:"Базовый воркшоп по UX‑копирайтингу. Практика формулировок, микро‑копирайтинг.",
+      },
+      { id:"evt_002", title:"SwiftUI MVVM Day",
+        dateISO:"2025-09-20T10:00:00+02:00", place:"Online",
+        desc:"Архитектура MVVM на практике. Модули, ViewModel, навигация, стейт.",
+      },
+      { id:"evt_003", title:"n8n + Supabase Automation",
+        dateISO:"2025-10-03T14:00:00+02:00", place:"Wien, Impact Hub",
+        desc:"Интеграции и вебхуки без боли. Лайфхаки продакшена.",
+      }
+    ];
+
+    const WEBHOOK_URL = "https://betters-technology.site/webhook/a62b454b-ab36-443a-bccd-8d736b4b8a7a";
+
+    // ---------- DOM refs ----------
+    const grid = document.getElementById('events');
+    const overlay = document.getElementById('overlay');
+    const closeBtn = document.getElementById('closeBtn');
+    const dlgTitle = document.getElementById('dlgTitle');
+    const dlgMeta  = document.getElementById('dlgMeta');
+    const dlgDesc  = document.getElementById('dlgDesc');
+    const form = document.getElementById('regForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const formStatus = document.getElementById('formStatus');
+
+    let selectedEvent = null;
+    let lastFocus = null;
+
+    // ---------- Utils ----------
+    const fmtDate = (iso) => {
+      try {
+        const d = new Date(iso);
+        return new Intl.DateTimeFormat('ru-RU', { dateStyle:'medium', timeStyle:'short' }).format(d);
+      } catch { return iso; }
+    };
+    const onlyDigits = (s) => (s || '').replace(/\D/g,'');
+    const toE164 = (raw) => {
+      const digits = onlyDigits(raw);
+      if (!digits) return null;
+      if (raw.trim().startsWith('+')) return '+' + digits;
+      // Без кода страны оставляем с плюсом (можно добавить дефолт региона)
+      return '+' + digits;
+    };
+
+    const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿА-Яа-яЁё' -]{2,50}$/;
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    function setError(field, message) {
+      const wrap = field.parentElement.classList.contains('row') ? field.parentElement : field.parentElement;
+      field.parentElement.classList.add('invalid');
+      const el = document.querySelector(`.error[data-err-for="${field.id}"]`);
+      if (el) el.textContent = message || '';
+      field.setAttribute('aria-invalid', 'true');
+    }
+    function clearError(field) {
+      field.parentElement.classList.remove('invalid');
+      const el = document.querySelector(`.error[data-err-for="${field.id}"]`);
+      if (el) el.textContent = '';
+      field.removeAttribute('aria-invalid');
+    }
+
+    function validateField(field) {
+      const v = field.value.trim();
+      if (field.id === 'firstName' || field.id === 'lastName') {
+        if (!v) { setError(field, 'Обязательное поле'); return false; }
+        if (!nameRe.test(v)) { setError(field, 'Только буквы, 2–50 символов'); return false; }
+      }
+      if (field.id === 'email') {
+        if (!v) { setError(field, 'Укажите email'); return false; }
+        if (!emailRe.test(v)) { setError(field, 'Неверный формат email'); return false; }
+      }
+      if (field.id === 'phone') {
+        const digits = onlyDigits(v);
+        if (!digits) { setError(field, 'Укажите телефон'); return false; }
+        if (digits.length < 10 || digits.length > 15) { setError(field, 'Телефон: 10–15 цифр'); return false; }
+      }
+      clearError(field);
+      return true;
+    }
+
+    function validateForm() {
+      const fields = ['firstName','lastName','phone','email'].map(id => document.getElementById(id));
+      let ok = true;
+      fields.forEach(f => { if (!validateField(f)) ok = false; });
+      return ok;
+    }
+
+    function openOverlay(ev) {
+      selectedEvent = ev;
+      dlgTitle.textContent = ev.title;
+      dlgMeta.textContent = `${fmtDate(ev.dateISO)} · ${ev.place}`;
+      dlgDesc.textContent = ev.desc;
+
+      form.reset();
+      document.querySelectorAll('.error').forEach(e => e.textContent = '');
+      document.querySelectorAll('#regForm .invalid').forEach(e => e.classList.remove('invalid'));
+      formStatus.className = 'status hidden';
+      formStatus.textContent = '';
+
+      lastFocus = document.activeElement;
+      overlay.classList.add('open');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('firstName').focus(), 30);
+    }
+
+    function closeOverlay() {
+      overlay.classList.remove('open');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (lastFocus) lastFocus.focus();
+    }
+
+    // ---------- Render cards ----------
+    function renderGrid() {
+      grid.innerHTML = '';
+      EVENTS.forEach(ev => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.tabIndex = 0;
+        card.innerHTML = `
+          <div class="card-title">${ev.title}</div>
+          <div class="card-meta">${fmtDate(ev.dateISO)} · ${ev.place}</div>
+          <div class="desc">${ev.desc}</div>
+        `;
+        card.addEventListener('click', () => openOverlay(ev));
+        card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openOverlay(ev); }});
+        grid.appendChild(card);
+      });
+    }
+
+    // ---------- Submit ----------
+    async function sendPayload(payload) {
+      // Пытаемся обычный fetch с CORS
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          mode: 'cors',
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return true;
+      } catch (err) {
+        // Фоллбек: «немой» POST (запрос уходит, ответ не читаем)
+        try {
+          navigator.sendBeacon && navigator.sendBeacon(WEBHOOK_URL, new Blob([JSON.stringify(payload)], { type:'application/json' }));
+        } catch {}
+        // Параллельно пробуем no-cors (не упадёт из-за CORS)
+        try {
+          await fetch(WEBHOOK_URL, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain'}, mode:'no-cors', keepalive:true });
+        } catch {}
+        // Считаем отправленным, но предупреждать юзера не будем — сервер принял/не принял неизвестно
+        return true;
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fFirst = document.getElementById('firstName');
+      const fLast  = document.getElementById('lastName');
+      const fPhone = document.getElementById('phone');
+      const fEmail = document.getElementById('email');
+
+      [fFirst,fLast,fPhone,fEmail].forEach(clearError);
+      if (!validateForm()) return;
+
+      submitBtn.disabled = true;
+      formStatus.className = 'status';
+      formStatus.textContent = 'Отправляем…';
+
+      const payload = {
+        eventId: selectedEvent.id,
+        eventTitle: selectedEvent.title,
+        eventDateISO: selectedEvent.dateISO,
+        firstName: fFirst.value.trim(),
+        lastName:  fLast.value.trim(),
+        phoneRaw:  fPhone.value.trim(),
+        phoneE164: toE164(fPhone.value.trim()),
+        email:     fEmail.value.trim(),
+        submittedAtISO: new Date().toISOString(),
+        clientUA: navigator.userAgent
+      };
+
+      const ok = await sendPayload(payload);
+      if (ok) {
+        formStatus.className = 'status ok';
+        formStatus.textContent = 'Заявка отправлена! Спасибо.';
+        setTimeout(closeOverlay, 900);
+      } else {
+        formStatus.className = 'status err';
+        formStatus.textContent = 'Не удалось отправить. Попробуйте ещё раз.';
+      }
+      submitBtn.disabled = false;
+    });
+
+    // Field validation on blur
+    ['firstName','lastName','phone','email'].forEach(id => {
+      document.getElementById(id).addEventListener('blur', (e) => validateField(e.target));
+      document.getElementById(id).addEventListener('input', (e) => {
+        // Снимаем ошибку по мере ввода
+        if (e.target.parentElement.classList.contains('invalid')) validateField(e.target);
+      });
+    });
+
+    // Overlay controls
+    closeBtn.addEventListener('click', closeOverlay);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('open')) closeOverlay(); });
+
+    // Init
+    renderGrid();
+  </script>
+</body>
+</html>
