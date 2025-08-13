@@ -137,4 +137,295 @@
 
   <!-- Overlay -->
   <div id="overlay" class="overlay" aria-hidden="true">
-    <div class="dialog" role="dialog" aria-modal
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+      <button id="closeBtn" class="close" type="button" aria-label="Закрыть">✕</button>
+      <div class="left">
+        <h2 id="dlgTitle"></h2>
+        <div id="dlgMeta" class="card-meta"></div>
+        <p id="dlgDesc" class="desc" style="margin-top:12px;"></p>
+      </div>
+      <div class="right">
+        <form id="regForm" novalidate>
+          <div class="row">
+            <div>
+              <label for="firstName">Имя</label>
+              <input id="firstName" name="firstName" autocomplete="given-name" required />
+              <div class="error" data-err-for="firstName"></div>
+            </div>
+            <div>
+              <label for="lastName">Фамилия</label>
+              <input id="lastName" name="lastName" autocomplete="family-name" required />
+              <div class="error" data-err-for="lastName"></div>
+            </div>
+          </div>
+
+          <label for="phone">Телефон</label>
+          <input id="phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="+43 660 1234567" required />
+          <div class="error" data-err-for="phone"></div>
+
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+          <div class="error" data-err-for="email"></div>
+
+          <button class="btn" id="submitBtn" type="submit">Отправить</button>
+          <div id="formStatus" class="status hidden"></div>
+          <div class="hint">Нажимая «Отправить», вы соглашаетесь с обработкой данных.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- Mock events ----------
+    const EVENTS = [
+      { id:"evt_001", title:"Intro to UX Writing",
+        dateISO:"2025-09-12T18:00:00+02:00", place:"Vienna, Maria-Theresien-Straße 5",
+        desc:"Базовый воркшоп по UX‑копирайтингу. Практика формулировок, микро‑копирайтинг.",
+      },
+      { id:"evt_002", title:"SwiftUI MVVM Day",
+        dateISO:"2025-09-20T10:00:00+02:00", place:"Online",
+        desc:"Архитектура MVVM на практике. Модули, ViewModel, навигация, стейт.",
+      },
+      { id:"evt_003", title:"n8n + Supabase Automation",
+        dateISO:"2025-10-03T14:00:00+02:00", place:"Wien, Impact Hub",
+        desc:"Интеграции и вебхуки без боли. Лайфхаки продакшена.",
+      }
+    ];
+
+    const WEBHOOK_URL = "https://betters-technology.site/webhook/a62b454b-ab36-443a-bccd-8d736b4b8a7a";
+
+    // ---------- DOM refs ----------
+    const grid = document.getElementById('events');
+    const overlay = document.getElementById('overlay');
+    const closeBtn = document.getElementById('closeBtn');
+    const dlgTitle = document.getElementById('dlgTitle');
+    const dlgMeta  = document.getElementById('dlgMeta');
+    const dlgDesc  = document.getElementById('dlgDesc');
+    const form = document.getElementById('regForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const formStatus = document.getElementById('formStatus');
+    const scrollToEventsBtn = document.getElementById('scrollToEvents');
+    const openNextBtn = document.getElementById('openNext');
+
+    let selectedEvent = null;
+    let lastFocus = null;
+    let filterMode = 'all';
+
+    // ---------- Utils ----------
+    const fmtDate = (iso) => {
+      try {
+        const d = new Date(iso);
+        return new Intl.DateTimeFormat('ru-RU', { dateStyle:'medium', timeStyle:'short' }).format(d);
+      } catch { return iso; }
+    };
+    const onlyDigits = (s) => (s || '').replace(/\D/g,'');
+    const toE164 = (raw) => {
+      const digits = onlyDigits(raw);
+      if (!digits) return null;
+      if (raw.trim().startsWith('+')) return '+' + digits;
+      return '+' + digits;
+    };
+
+    const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿА-Яа-яЁё' -]{2,50}$/;
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    function setError(field, message) {
+      field.parentElement.classList.add('invalid');
+      const el = document.querySelector(`.error[data-err-for="${field.id}"]`);
+      if (el) el.textContent = message || '';
+      field.setAttribute('aria-invalid', 'true');
+    }
+    function clearError(field) {
+      field.parentElement.classList.remove('invalid');
+      const el = document.querySelector(`.error[data-err-for="${field.id}"]`);
+      if (el) el.textContent = '';
+      field.removeAttribute('aria-invalid');
+    }
+
+    function validateField(field) {
+      const v = field.value.trim();
+      if (field.id === 'firstName' || field.id === 'lastName') {
+        if (!v) { setError(field, 'Обязательное поле'); return false; }
+        if (!nameRe.test(v)) { setError(field, 'Только буквы, 2–50 символов'); return false; }
+      }
+      if (field.id === 'email') {
+        if (!v) { setError(field, 'Укажите email'); return false; }
+        if (!emailRe.test(v)) { setError(field, 'Неверный формат email'); return false; }
+      }
+      if (field.id === 'phone') {
+        const digits = onlyDigits(v);
+        if (!digits) { setError(field, 'Укажите телефон'); return false; }
+        if (digits.length < 10 || digits.length > 15) { setError(field, 'Телефон: 10–15 цифр'); return false; }
+      }
+      clearError(field);
+      return true;
+    }
+
+    function validateForm() {
+      const fields = ['firstName','lastName','phone','email'].map(id => document.getElementById(id));
+      let ok = true;
+      fields.forEach(f => { if (!validateField(f)) ok = false; });
+      return ok;
+    }
+
+    function openOverlay(ev) {
+      selectedEvent = ev;
+      dlgTitle.textContent = ev.title;
+      dlgMeta.textContent = `${fmtDate(ev.dateISO)} · ${ev.place}`;
+      dlgDesc.textContent = ev.desc;
+
+      form.reset();
+      document.querySelectorAll('.error').forEach(e => e.textContent = '');
+      document.querySelectorAll('#regForm .invalid').forEach(e => e.classList.remove('invalid'));
+      formStatus.className = 'status hidden';
+      formStatus.textContent = '';
+
+      lastFocus = document.activeElement;
+      overlay.classList.add('open');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('firstName').focus(), 30);
+    }
+
+    function closeOverlay() {
+      overlay.classList.remove('open');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (lastFocus) lastFocus.focus();
+    }
+
+    // ---------- Render cards (with filter) ----------
+    function applyFilter(list) {
+      if (filterMode === 'online') return list.filter(e => /online/i.test(e.place));
+      if (filterMode === 'offline') return list.filter(e => !/online/i.test(e.place));
+      return list;
+    }
+
+    function renderGrid() {
+      const data = applyFilter(EVENTS);
+      grid.innerHTML = '';
+      data.forEach((ev, i) => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.tabIndex = 0;
+        card.innerHTML = `
+          <span class="badge">${new Date(ev.dateISO).toLocaleDateString('ru-RU', { day:'2-digit', month:'short' })}</span>
+          <div class="card-title">${ev.title}</div>
+          <div class="card-meta">${fmtDate(ev.dateISO)} · ${ev.place}</div>
+          <div class="desc">${ev.desc}</div>
+        `;
+        card.addEventListener('click', () => openOverlay(ev));
+        card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openOverlay(ev); }});
+        grid.appendChild(card);
+        // Staggered reveal
+        setTimeout(() => card.classList.add('reveal'), 40 * i);
+      });
+    }
+
+    // ---------- Submit ----------
+    async function sendPayload(payload) {
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          mode: 'cors',
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return true;
+      } catch (err) {
+        try { navigator.sendBeacon && navigator.sendBeacon(WEBHOOK_URL, new Blob([JSON.stringify(payload)], { type:'application/json' })); } catch {}
+        try { await fetch(WEBHOOK_URL, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain'}, mode:'no-cors', keepalive:true }); } catch {}
+        return true;
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fFirst = document.getElementById('firstName');
+      const fLast  = document.getElementById('lastName');
+      const fPhone = document.getElementById('phone');
+      const fEmail = document.getElementById('email');
+
+      [fFirst,fLast,fPhone,fEmail].forEach(clearError);
+      if (!validateForm()) return;
+
+      submitBtn.disabled = true;
+      formStatus.className = 'status';
+      formStatus.textContent = 'Отправляем…';
+
+      const payload = {
+        eventId: selectedEvent.id,
+        eventTitle: selectedEvent.title,
+        eventDateISO: selectedEvent.dateISO,
+        firstName: fFirst.value.trim(),
+        lastName:  fLast.value.trim(),
+        phoneRaw:  fPhone.value.trim(),
+        phoneE164: toE164(fPhone.value.trim()),
+        email:     fEmail.value.trim(),
+        submittedAtISO: new Date().toISOString(),
+        clientUA: navigator.userAgent
+      };
+
+      const ok = await sendPayload(payload);
+      if (ok) {
+        formStatus.className = 'status ok';
+        formStatus.textContent = 'Заявка отправлена! Спасибо.';
+        setTimeout(closeOverlay, 900);
+      } else {
+        formStatus.className = 'status err';
+        formStatus.textContent = 'Не удалось отправить. Попробуйте ещё раз.';
+      }
+      submitBtn.disabled = false;
+    });
+
+    // Field validation on blur + live
+    ['firstName','lastName','phone','email'].forEach(id => {
+      document.getElementById(id).addEventListener('blur', (e) => validateField(e.target));
+      document.getElementById(id).addEventListener('input', (e) => {
+        if (e.target.parentElement.classList.contains('invalid')) validateField(e.target);
+      });
+    });
+
+    // Overlay controls
+    closeBtn.addEventListener('click', closeOverlay);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('open')) closeOverlay(); });
+
+    // Scroll to grid
+    scrollToEventsBtn.addEventListener('click', () => {
+      document.getElementById('events').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // Open nearest upcoming event
+    openNextBtn.addEventListener('click', () => {
+      const now = Date.now();
+      const next = [...EVENTS].filter(e => new Date(e.dateISO).getTime() >= now).sort((a,b) => new Date(a.dateISO)-new Date(b.dateISO))[0] || EVENTS[0];
+      openOverlay(next);
+    });
+
+    // Filters
+    document.querySelectorAll('.chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected','true');
+        filterMode = btn.dataset.filter;
+        renderGrid();
+      });
+    });
+
+    // Reveal on scroll (progressive, if JS enabled)
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add('reveal'); });
+    }, { threshold: .1 });
+
+    const observeCards = () => document.querySelectorAll('.card').forEach(c => io.observe(c));
+
+    // Init
+    renderGrid();
+    // Observe after first render
+    setTimeout(observeCards, 0);
+  </script>
+</body>
+</html>
