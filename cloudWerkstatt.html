@@ -2,10 +2,14 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Мероприятия — Регистрация</title>
   <link href="https://fonts.googleapis.com/css2?family=Nata+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+
+        
+
+    
   /* ============ BASE ============ */
   :root{
     --ov-pad:50px;              /* внешняя «рамка» оверлея по умолчанию */
@@ -15,7 +19,15 @@
   * { box-sizing: border-box; }
   html, body { height:100%; }
   body { font-family: 'Nata Sans', system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif; margin:0; }
-
+html { -webkit-text-size-adjust: 100%; }
+    
+    /* блокируем фон за модалкой (без «дёрганий» позиции) */
+body.modal-open{
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+}
+    
   /* HERO */
   .hero {
     position: relative;
@@ -53,6 +65,7 @@
   .event-search h2 { margin:0; font-size:26px; font-weight:700; color:#222; }
   .search-row { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
   .search-controls { display:flex; align-items:center; gap:12px; flex: 1 1 480px; justify-content:flex-end; }
+    .search-controls > * { min-width: 0; }
   .search-row input{
     flex: 1 1 360px; height:44px; padding:0 14px; font-size:16px; line-height:44px;
     border:1px solid #cfd3d7; border-radius:8px; color:#222; outline:none; min-width: 0;
@@ -97,19 +110,25 @@
   }
 
   /* ===== OVERLAY (модал) ===== */
-  .overlay{
-    position:fixed; inset:0; display:none; align-items:stretch; justify-content:center; z-index:1000;
-    background:rgba(0,0,0,.65);
-    padding: max(16px, calc(env(safe-area-inset-top)));         /* безопасные зоны */
-    padding: var(--ov-pad);
-  }
+  /* overlay: учесть safe-area по сторонам и запретить проброс скролла */
+.overlay{
+  position:fixed; inset:0; display:none; align-items:stretch; justify-content:center; z-index:1000;
+  background:rgba(0,0,0,.65);
+  /* было: две строки padding; оставляем одну с учётом безопасных зон */
+  --pad: var(--ov-pad);
+  padding-top:  calc(var(--pad) + env(safe-area-inset-top));
+  padding-right:calc(var(--pad) + env(safe-area-inset-right));
+  padding-bottom:calc(var(--pad) + env(safe-area-inset-bottom));
+  padding-left: calc(var(--pad) + env(safe-area-inset-left));
+  overscroll-behavior: contain;
+}
   .overlay.show{ display:flex; animation:overlayFade .2s ease; }
   @keyframes overlayFade{ from{opacity:0} to{opacity:1} }
 
   .ov-modal{
     background:#fff; color:#111; border-radius:18px; overflow:hidden;
     width:min(1200px, calc(100vw - 2*var(--ov-pad)));
-    height:calc(100dvh - 2*var(--ov-pad));                       /* iOS-friendly */
+  height: calc(100dvh - (env(safe-area-inset-top) + env(safe-area-inset-bottom)) - 2*var(--ov-pad));
     box-shadow:0 30px 80px rgba(0,0,0,.35);
     display:grid; grid-template-rows:auto auto 1fr;
   }
@@ -120,12 +139,14 @@
   }
   .ov-hero::before{content:""; position:absolute; inset:0; background:rgba(0,0,0,.45);}
   .ov-hero .inner{position:relative; padding:24px 20px 28px;}
-  .ov-hero h2{margin:0; font-size:36px; font-weight:700; line-height:1.2;}
+  .ov-hero h2{margin:0; font-size:36px; font-weight:700; line-height:1.2;overflow-wrap:anywhere;}
 
   .ov-close{
-    position:absolute; top:12px; right:12px; z-index:2;
+    position:absolute; z-index:2;
     border:none; background:rgba(255,255,255,.95); width:44px; height:44px; border-radius:12px;
     font-size:22px; cursor:pointer;
+      top:  calc(8px + env(safe-area-inset-top));
+  right:calc(8px + env(safe-area-inset-right));
   }
   .ov-close:hover{ background:#fff; }
 
@@ -137,7 +158,7 @@
   }
   .ov-tab[aria-current="true"], .ov-tab:hover{ background:#fff; box-shadow:inset 0 0 0 1px #e6e8eb; }
 
-  .ov-content{ overflow:auto; padding:20px; }
+  .ov-content{ overflow:auto; padding:20px; -webkit-overflow-scrolling: touch; }
   .ov-section{ padding:18px 0; border-bottom:1px solid #eee; }
   .ov-section h3{ margin:0 0 10px; font-size:20px; font-weight:700; }
   .ov-section p{ margin:0; color:#444; line-height:1.55; }
@@ -203,10 +224,15 @@
 
   /* <= 600px: поиск — в столбик; поля и кнопки на всю ширину; карточки крупнее */
   @media (max-width: 600px){
-    .search-row { align-items: stretch; }
-    .search-controls{ width:100%; justify-content:stretch; }
-    .search-row input{ width:100%; flex:1 1 auto; }
-    .search-row button{ width:100%; }
+  .search-row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .search-controls{
+    display: grid;
+    grid-template-columns: 1fr;  /* инпут на всю ширину */
+    gap: 12px;
+    width: 100%;
+  }
+  .search-row input{ width:100%; flex: 1 1 auto; }
+  .search-row button{ width:100%; }
 
     .events-grid { grid-template-columns: 1fr; }
     .event-card-header h3 { font-size:17px; }
@@ -623,7 +649,6 @@ function fmt(iso){
 function closeOverlay(){
   overlayEl.classList.remove("show");
   overlayEl.setAttribute("aria-hidden","true");
-  document.body.style.overflow = "";
 }
 
 // закрытие
@@ -658,8 +683,8 @@ document.getElementById("ovTabs").addEventListener("click", (e)=>{
 
 
 
-// экспорт при желании вызывать из hero
-window.openEventOverlay = openEventOverlay;
+
+
 
 let currentEvent = null; // активное событие в оверлее
 
@@ -676,10 +701,40 @@ window.currentEvent = evt;   // <— добавь эту строку
 
   overlayEl.classList.add("show");
   overlayEl.setAttribute("aria-hidden","false");
-  document.body.style.overflow = "hidden";
   ovScroll.scrollTop = 0;
   setActiveTab(document.querySelector('.ov-tab[data-target="#agenda"]'));
 }
+
+  let __scrollY = 0;
+
+function lockBodyScroll(){
+  __scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  document.body.classList.add('modal-open');
+  document.body.style.top = `-${__scrollY}px`;
+}
+
+function unlockBodyScroll(){
+  document.body.classList.remove('modal-open');
+  document.body.style.top = '';
+  window.scrollTo(0, __scrollY);
+}
+
+/* хукни в твои open/close */
+const __openOrig = openEventOverlay;
+openEventOverlay = function(evt){
+  __openOrig(evt);
+  lockBodyScroll();
+};
+
+const __closeOrig = closeOverlay;
+closeOverlay = function(){
+  __closeOrig();
+  unlockBodyScroll();
+};
+
+  /* ↓ добавь эту строку после обёрток */
+window.openEventOverlay = openEventOverlay;
+
 
 // submit → твой WEBHOOK_URL
 const WEBHOOK_URL = "https://betters-technology.site/webhook/a62b454b-ab36-443a-bccd-8d736b4b8a7a";
